@@ -1,18 +1,34 @@
 """
-Global Typing Assistant PRO — ALL BUGS FIXED
-=============================================
-BUG FIXES:
-  ✅ FIX 1: "iincomplex aalphabet" → keyboard.type() HATAYA, clipboard paste lagaya
-            (keyboard.type() har char ka keystroke generate karta tha jo listener
-             dobara capture karta tha → doubled/garbled text)
-  ✅ FIX 2: Popup wrong location → mouse position ki jagah real TEXT CURSOR position
-            (Windows GetGUIThreadInfo API se actual caret position milta hai)
-  ✅ FIX 3: Enter key → target app mein bhi Enter jata tha (newline) → extra backspace
-  ✅ FIX 4: FOCUS_RETURN_DELAY 0.05s → 0.25s (popup close hone ka waqt nahi milta tha)
+Global Typing Assistant PRO — v2 ALL BUGS FIXED
+================================================
+ORIGINAL FIXES (purani version se):
+  ✅ FIX 1: keyboard.type() HATAYA → clipboard paste lagaya
+            (doubled/garbled text problem khatam)
+  ✅ FIX 2: Popup wrong location → real TEXT CURSOR position
+            (Windows GetGUIThreadInfo API se actual caret position)
+  ✅ FIX 3: Enter key → target app mein newline jata tha → extra backspace
+  ✅ FIX 4: FOCUS_RETURN_DELAY 0.05s → 0.25s
   ✅ FIX 5: Dictionary fast prefix search → bisect (370K words, O(log n))
   ✅ FIX 6: Learning validation → garbage words nahi seekhta
   ✅ FIX 7: is_processing flag → proper timing
-  ✅ FIX 8: MIN_WORD_LENGTH 1 → 2 (har ek char pe popup aa raha tha)
+  ✅ FIX 8: MIN_WORD_LENGTH 1 → 2
+
+NEW BUGS FIXED (v2 — ye sab naye fixes hain):
+  ✅ FIX 9:  [MAIN FIX] AUTO-CORRECT ON SPACE — ab space dabao to
+             galat word KHUD BA KHUD theek hota hai, popup select
+             ki zaroorat nahi. "teh " type karo → "the " ban jata hai.
+  ✅ FIX 10: DictIndex.prefix_search break condition galat tha.
+             Pehle prefix_l[0] (sirf pehla char) check karta tha jis
+             se O(n) loop chalta tha. Ab 'else: break' se sahi O(log n+k).
+  ✅ FIX 11: _is_quality_word mein prefix search se dictionary check
+             galat tha — "app" type karo to "apple" milta tha aur word
+             dictionary mein samjha jata tha. Ab exact match hota hai.
+  ✅ FIX 12: [Fix] prefix stripping — _resolve_selection dead code tha,
+             kabhi call nahi hoti thi. Ab _resolve_suggestion properly
+             GlobalAssistant mein wire ki gayi hai aur popup callback
+             seedha isi se connected hai.
+  ✅ FIX 13: _patched_init useless monkey-patch tha (kuch nahi karta tha).
+             Hataya. __main__ mein bhi _patched_select ki zaroorat nahi.
 """
 
 import tkinter as tk
@@ -44,15 +60,15 @@ USAGE_STATS_FILE   = os.path.join(BASE_DIR, "usage_stats.json")
 POPUP_WIDTH        = 320
 POPUP_HEIGHT       = 220
 MAX_SUGGESTIONS    = 10
-MIN_WORD_LENGTH    = 2      # FIX 8: was 1 (popup on every char)
+MIN_WORD_LENGTH    = 2       # FIX 8: was 1 (popup on every char)
 DEBOUNCE_TIME      = 0.3
-FOCUS_RETURN_DELAY = 0.25   # FIX 4: was 0.05 (too short)
-BACKSPACE_DELAY    = 0.03   # delay between each backspace
+FOCUS_RETURN_DELAY = 0.25    # FIX 4: was 0.05 (too short)
+BACKSPACE_DELAY    = 0.03    # delay between each backspace
 POLL_INTERVAL_MS   = 60
 
 # Minimum word quality for auto-learning
-LEARN_MIN_LEN      = 4      # don't learn very short words
-LEARN_ALPHA_RATIO  = 0.7    # at least 70% letters
+LEARN_MIN_LEN      = 4       # don't learn very short words
+LEARN_ALPHA_RATIO  = 0.7     # at least 70% letters
 
 # ══════════════════════════════════════════════════════════════════
 # CARET POSITION (text cursor, not mouse cursor)
@@ -118,6 +134,11 @@ class DictIndex:
         print(f"[Dict] {len(self._words):,} words indexed")
 
     def prefix_search(self, prefix, limit=15):
+        """
+        FIX 10: Break condition theek ki — pehle prefix_l[0] check hota tha
+        jis se O(n) loop chalta tha. Ab sahi 'else: break' se sorted list
+        mein prefix range khatam hote hi ruk jata hai → O(log n + k).
+        """
         prefix_l = prefix.lower()
         lo = bisect.bisect_left(self._keys, prefix_l)
         results = []
@@ -126,9 +147,22 @@ class DictIndex:
                 results.append(self._words[i])
                 if len(results) >= limit:
                     break
-            elif not self._keys[i].startswith(prefix_l[0] if prefix_l else ''):
+            else:
+                # FIX 10: Sorted list mein prefix range khatam —
+                # aage koi bhi word match nahi karega, foran rok do.
                 break
         return results
+
+    def exact_match(self, word):
+        """
+        FIX 11: Exact dictionary lookup.
+        prefix_search se galat tha — ab binary search se exact word dhundta hai.
+        """
+        word_l = word.lower()
+        lo = bisect.bisect_left(self._keys, word_l)
+        if lo < len(self._keys) and self._keys[lo] == word_l:
+            return True
+        return False
 
 # ══════════════════════════════════════════════════════════════════
 # DATA MANAGER
@@ -231,16 +265,18 @@ class DataManager:
 
     def _is_quality_word(self, word):
         """
-        FIX 6: Check if word is worth learning.
-        Garbage words like 'arite', 'kina', 'rada' nahi seekhne chahiye.
+        FIX 6 + FIX 11: Check if word is worth learning.
+        FIX 11: Pehle prefix_search se galat check hota tha — "app" likhne
+        pe "apple" milta tha aur word dictionary mein samjha jata tha.
+        Ab exact_match() se sahi check hota hai.
         """
         if len(word) < LEARN_MIN_LEN:
             return False
         alpha_count = sum(1 for c in word if c.isalpha())
         if alpha_count / len(word) < LEARN_ALPHA_RATIO:
             return False
-        # Don't learn if already in dictionary
-        if self.dict_index and self.dict_index.prefix_search(word.lower(), limit=1):
+        # FIX 11: Exact match — prefix match nahi (tha galat pehle)
+        if self.dict_index and self.dict_index.exact_match(word):
             return False
         return True
 
@@ -291,7 +327,6 @@ class SuggestionPopup:
         self.current_word = word
 
         # FIX 2: x, y is now the real caret position (bottom of text cursor)
-        # Position popup just below and slightly right of caret
         screen_w = self.root.winfo_screenwidth()
         popup_x  = min(x, screen_w - POPUP_WIDTH - 10)
         popup_y  = y + 4
@@ -336,10 +371,10 @@ class SuggestionPopup:
     def _on_mouse_click(self, event):
         idx = self.listbox.nearest(event.y)
         if 0 <= idx < len(self.suggestions):
-            word = self.current_word
+            word     = self.current_word
             selected = self.suggestions[idx]
             self.close()
-            # Mouse click: no extra backspace (no key went to target app)
+            # Mouse click: no extra backspace
             self.on_select(word, selected, extra_bs=0)
 
     def select_next(self):
@@ -404,7 +439,11 @@ class GlobalAssistant:
 
         self.root  = tk.Tk()
         self.root.withdraw()
-        self.popup = SuggestionPopup(self.root, self._apply_suggestion)
+
+        # FIX 12: _resolve_suggestion directly popup callback mein pass karo.
+        # Pehle _apply_suggestion pass hota tha jo [Fix] prefix strip nahi karta tha.
+        # _patched_select aur _patched_init monkey-patch ki zaroorat ab nahi (FIX 13).
+        self.popup = SuggestionPopup(self.root, self._resolve_suggestion)
 
     # ─────────────────────────── word ───────────────────────────
 
@@ -413,18 +452,29 @@ class GlobalAssistant:
         words = re.findall(r"[a-zA-Z\u0600-\u06FF']+", text)
         return words[-1] if words else ""
 
+    # ─────────────────────────── [Fix] prefix resolve ───────────
+
+    def _resolve_suggestion(self, original_word, raw_selection, extra_bs=0):
+        """
+        FIX 12: [Fix] prefix theek se strip karo phir apply karo.
+        Pehle _resolve_selection naam ki method thi jo kabhi call hi nahi hoti thi
+        (dead code). Ab ye method popup ka seedha callback hai — koi monkey-patch nahi.
+        """
+        suggestion = raw_selection[6:] if raw_selection.startswith("[Fix] ") else raw_selection
+        self._apply_suggestion(original_word, suggestion, extra_bs)
+
     # ─────────────────────────── insert ─────────────────────────
 
     def _apply_suggestion(self, original_word, suggestion, extra_bs=0):
         """
         FIX 1 + FIX 3 + FIX 4:
         - keyboard.type() → clipboard paste (no more doubled characters)
-        - extra_bs → compensate for Enter/Tab going to target app
+        - extra_bs → compensate for Enter/Tab/Space going to target app
         - Longer delay for focus to return
         """
         self.typing_buffer.clear()
         self.is_inserting = True
-        self.dm.record_usage(suggestion)
+        self.dm.record_usage(suggestion.strip())
         threading.Thread(
             target=self._do_insert,
             args=(original_word, suggestion, extra_bs),
@@ -436,9 +486,9 @@ class GlobalAssistant:
             # FIX 4: Enough time for popup to close & target app to regain focus
             time.sleep(FOCUS_RETURN_DELAY)
 
-            # FIX 3: Delete original word + any key that went to target app (e.g. Enter newline)
+            # FIX 3: Delete original word + any key that went to target app
             total_bs = len(original_word) + extra_bs
-            print(f"[Insert] Deleting {total_bs} chars for '{original_word}'=>paste '{suggestion}'")
+            print(f"[Insert] '{original_word}' → '{suggestion}' ({total_bs} backspaces)")
             for _ in range(total_bs):
                 pyautogui.press('backspace')
                 time.sleep(BACKSPACE_DELAY)
@@ -486,7 +536,7 @@ class GlobalAssistant:
             if self.popup.active:
                 if key == pynput_keyboard.Key.down:
                     self.event_queue.put(('popup_down',))
-                    return True        # return True → listener ZINDA rahega
+                    return True
                 if key == pynput_keyboard.Key.up:
                     self.event_queue.put(('popup_up',))
                     return True
@@ -518,7 +568,25 @@ class GlobalAssistant:
             elif key == pynput_keyboard.Key.space:
                 word = self._get_current_word()
                 if word:
-                    self.dm.learn_word(word)  # learn on space (word complete)
+                    corrected = self.dm.correct_error(word)
+                    if corrected != word:
+                        # ══════════════════════════════════════════════
+                        # FIX 9: MAIN AUTO-CORRECT — space dabane pe
+                        # galat word KHUD BA KHUD theek hota hai.
+                        # "teh " type karo → "the " ban jata hai bina
+                        # popup select kiye.
+                        # extra_bs=1 → space bhi delete karta hai,
+                        # corrected + " " → corrected word ke baad
+                        # space bhi paste hota hai.
+                        # ══════════════════════════════════════════════
+                        print(f"[AutoCorrect] '{word}' → '{corrected}'")
+                        self.typing_buffer.clear()
+                        self.event_queue.put(('popup_close',))
+                        self._apply_suggestion(word, corrected + " ", extra_bs=1)
+                        return True
+                    else:
+                        self.dm.learn_word(word)
+
                 self.typing_buffer.clear()
                 self.event_queue.put(('popup_close',))
 
@@ -530,7 +598,7 @@ class GlobalAssistant:
             elif key == pynput_keyboard.Key.enter:
                 word = self._get_current_word()
                 if word:
-                    self.dm.learn_word(word)  # learn on enter
+                    self.dm.learn_word(word)
                 self.typing_buffer.clear()
                 self.event_queue.put(('popup_close',))
 
@@ -555,9 +623,8 @@ class GlobalAssistant:
                     else:
                         word = self._get_current_word()
                         if len(word) >= MIN_WORD_LENGTH:
-                            # Autocorrect suggestion at top
-                            corrected  = self.dm.correct_error(word)
-                            matches    = self.dm.get_smart_matches(word)
+                            corrected = self.dm.correct_error(word)
+                            matches   = self.dm.get_smart_matches(word)
                             final_list = []
 
                             # Put autocorrect fix at top (if different from typed)
@@ -569,7 +636,6 @@ class GlobalAssistant:
                                     final_list.append(m)
 
                             if final_list:
-                                # FIX 2: Real caret position (text cursor, not mouse)
                                 x, y = get_caret_position()
                                 self.popup.show(final_list[:MAX_SUGGESTIONS], word, x, y)
                             else:
@@ -605,14 +671,7 @@ class GlobalAssistant:
         finally:
             self.root.after(POLL_INTERVAL_MS, self._poll_queue)
 
-    # ─────────────────────────── _apply fix: [Fix] prefix ───────
-
-    def _resolve_selection(self, original_word, raw_selection, extra_bs):
-        """Strip [Fix] prefix if present, then do insert."""
-        suggestion = raw_selection[6:] if raw_selection.startswith("[Fix] ") else raw_selection
-        self._apply_suggestion(original_word, suggestion, extra_bs)
-
-    # ─────────────────────────── start ──────────────────────────
+    # ─────────────────────────── splash ─────────────────────────
 
     def show_splash(self):
         splash = tk.Toplevel(self.root)
@@ -625,10 +684,10 @@ class GlobalAssistant:
         splash.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
         canvas = tk.Canvas(splash, width=w, height=h, bg="#001a33", highlightthickness=0)
         canvas.pack()
-        canvas.create_text(w//2, 50, text="ALPHA", fill="#00bfff",
-                           font=("Segoe UI", 32, "bold"))
-        canvas.create_text(w//2, 100, text="AI Typing Assistant", fill="#66d9ff",
-                           font=("Segoe UI", 14))
+        canvas.create_text(w//2, 50,  text="ALPHA",
+                           fill="#00bfff", font=("Segoe UI", 32, "bold"))
+        canvas.create_text(w//2, 100, text="AI Typing Assistant",
+                           fill="#66d9ff", font=("Segoe UI", 14))
         canvas.create_line(60, 130, w-60, 130, fill="#00bfff", width=1)
         canvas.create_text(w//2, 155, text="Reserved by Moiz Digital Service",
                            fill="#cccccc", font=("Segoe UI", 11))
@@ -637,12 +696,15 @@ class GlobalAssistant:
         splash.bind("<Button-1>", lambda e: splash.destroy())
         splash.after(3000, splash.destroy)
 
+    # ─────────────────────────── start ──────────────────────────
+
     def start(self):
         print("=" * 60)
-        print("  ⌨️  Global Typing Assistant PRO — All Bugs Fixed")
+        print("  ⌨️  Global Typing Assistant PRO v2 — All Bugs Fixed")
         print("=" * 60)
         print("  Type anywhere  → suggestions near your text cursor")
-        print("  Up / Down      → navigate")
+        print("  Space          → AUTO-CORRECT galat word (FIX 9 ✅)")
+        print("  Up / Down      → navigate popup")
         print("  Enter / Tab    → select suggestion")
         print("  Esc            → close popup")
         print("  Mouse click    → select (most reliable)")
@@ -677,26 +739,18 @@ class GlobalAssistant:
         finally:
             self.popup.close()
             listener.stop()
-            # Save learning data on exit
             DataManager._save_json(USER_LEARNING_FILE, self.dm.user_learning)
             DataManager._save_json(USAGE_STATS_FILE,   self.dm.usage_stats)
             print("[App] Goodbye!")
 
 
-# Fix: connect popup's on_select to resolve [Fix] prefix properly
-_orig_init = SuggestionPopup.__init__
-def _patched_init(self, root, on_select_callback):
-    _orig_init(self, root, on_select_callback)
-SuggestionPopup.__init__ = _patched_init
-
+# ══════════════════════════════════════════════════════════════════
+# ENTRY POINT
+# FIX 13: _patched_init (dead monkey-patch) hataya.
+# FIX 12: _patched_select hataya — ab popup callback seedha
+#          _resolve_suggestion se connected hai GlobalAssistant.__init__ mein.
+# ══════════════════════════════════════════════════════════════════
 
 if __name__ == "__main__":
     assistant = GlobalAssistant()
-
-    # Patch popup to strip [Fix] prefix before inserting
-    def _patched_select(original_word, raw, extra_bs=0):
-        suggestion = raw[6:] if raw.startswith("[Fix] ") else raw
-        assistant._apply_suggestion(original_word, suggestion, extra_bs)
-
-    assistant.popup.on_select = _patched_select
     assistant.start()
