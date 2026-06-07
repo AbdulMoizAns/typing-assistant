@@ -335,12 +335,12 @@ class GlobalAssistant:
         try:
             time.sleep(FOCUS_RETURN_DELAY)
             pyautogui.PAUSE = 0
+            total_bs = len(original_word) + extra_bs
+            pyautogui.press('backspace', presses=total_bs)
             old_clip = ""
             try: old_clip = pyperclip.paste()
             except: pass
             pyperclip.copy(suggestion)
-            total_bs = len(original_word) + extra_bs
-            pyautogui.write('\b' * total_bs, interval=0.0)
             pyautogui.hotkey('ctrl', 'v')
             try: pyperclip.copy(old_clip)
             except: pass
