@@ -14,6 +14,9 @@ ORIGINAL FIXES (purani version se):
   ✅ FIX 8: MIN_WORD_LENGTH 1 → 2
 
 NEW BUGS FIXED (v2 — ye sab naye fixes hain):
+  ✅ FIX 14: Backspace ke baad fresh word context — "back" + backspace + "y"
+             pehle "bacy" banta tha (bekaar suggestions). Ab backspace se puri
+             buffer clear hoti hai → "y" type karo → yes, you, year milte hain.
   ✅ FIX 9:  [MAIN FIX] AUTO-CORRECT ON SPACE — ab space dabao to
              galat word KHUD BA KHUD theek hota hai, popup select
              ki zaroorat nahi. "teh " type karo → "the " ban jata hai.
