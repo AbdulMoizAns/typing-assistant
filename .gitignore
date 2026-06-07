@@ -3,3 +3,5 @@ __pycache__/
 *.pyo
 usage_stats.json
 user_learning.json
+
+update/
