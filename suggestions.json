@@ -1,0 +1,7 @@
+{
+  "greetings": ["Assalam-o-Alaikum", "Hello", "Hi", "Good morning", "Good evening"],
+  "closings": ["Thanks", "Regards", "Best regards", "Sincerely", "Take care"],
+  "code": ["print()", "def main():", "if __name__ == '__main__':", "for i in range():", "import numpy as np"],
+  "email": ["Dear Sir/Madam", "I hope you are well", "Please find attached", "Looking forward to your reply"],
+  "urdu_phrases": ["Shukriya", "Mein theek hoon", "Aap kaise hain?", "Allah Hafiz", "Mujhe samajh aa gaya"]
+}

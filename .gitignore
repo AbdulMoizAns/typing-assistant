@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.pyo
+usage_stats.json
+user_learning.json
