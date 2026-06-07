@@ -29,6 +29,11 @@ NEW BUGS FIXED (v2 — ye sab naye fixes hain):
              seedha isi se connected hai.
   ✅ FIX 13: _patched_init useless monkey-patch tha (kuch nahi karta tha).
              Hataya. __main__ mein bhi _patched_select ki zaroorat nahi.
+  ✅ FIX 14: [BACKSPACE RACE FIX] backspace ke baad naya character type
+             karne pe suggestion sirf us naye char se start hote the
+             (e.g., 'y' se 'yes' bajaye 'bacy' ke matches dikhane ke).
+             Ab har ('suggest',) event apne saath word snapshot bhi le jaata
+             hai, taake poll loop mein buffer ka galat state use na ho.
 """
 
 import tkinter as tk
@@ -700,7 +705,7 @@ class GlobalAssistant:
 
     def start(self):
         print("=" * 60)
-        print("  ⌨️  Global Typing Assistant PRO v2.1 — Backspace Race Fixed")
+        print("  ⌨️  Global Typing Assistant PRO v2.1 — FIX 14 Backspace Race Fixed")
         print("=" * 60)
         print("  Type anywhere  → suggestions near your text cursor")
         print("  Space          → AUTO-CORRECT galat word (FIX 9 ✅)")
