@@ -153,6 +153,45 @@ def get_caret_position():
     return _last_caret_pos
 
 # =============================================================
+# SEQUENCE LEARNER
+# =============================================================
+class SequenceLearner:
+    def __init__(self):
+        self.sequences = {}
+        self.trigrams = {}
+    
+    def learn(self, word_list):
+        if len(word_list) < 2:
+            return
+        for i in range(len(word_list) - 1):
+            current = word_list[i].lower()
+            next_word = word_list[i + 1].lower()
+            if current not in self.sequences:
+                self.sequences[current] = {}
+            self.sequences[current][next_word] = self.sequences[current].get(next_word, 0) + 1
+        for i in range(len(word_list) - 2):
+            key = f"{word_list[i].lower()}_{word_list[i+1].lower()}"
+            next_word = word_list[i + 2].lower()
+            if key not in self.trigrams:
+                self.trigrams[key] = {}
+            self.trigrams[key][next_word] = self.trigrams[key].get(next_word, 0) + 1
+    
+    def predict_next(self, current_word, prev_word=None):
+        current = current_word.lower()
+        results = []
+        if prev_word:
+            trigram_key = f"{prev_word.lower()}_{current}"
+            if trigram_key in self.trigrams:
+                for word, count in self.trigrams[trigram_key].items():
+                    results.append((word, count * 2))
+        if current in self.sequences:
+            for word, count in self.sequences[current].items():
+                results.append((word, count))
+        results.sort(key=lambda x: x[1], reverse=True)
+        return [word for word, _ in results[:5]]
+
+
+# =============================================================
 # DATA MANAGER
 # =============================================================
 class DictIndex:
@@ -177,7 +216,7 @@ class DictIndex:
 class DataManager:
     __slots__ = ('suggestions', 'user_learning', 'usage_stats', 'dict_index', 
                  'errors', 'ru_learning', '_ru_corrections', '_ru_prefixes',
-                 'word_pairs', 'recency_tracker')
+                 'word_pairs', 'recency_tracker', 'sequence_learner', 'word_history')
     
     def __init__(self):
         self.suggestions = self._load_json(SUGGESTIONS_FILE, {})
@@ -202,6 +241,9 @@ class DataManager:
         self._ru_prefixes = ROMAN_URDU_PREFIXES
         self.word_pairs = self._load_json(os.path.join(BASE_DIR, "word_pairs.json"), {})
         self.recency_tracker = self._load_json(os.path.join(BASE_DIR, "recency.json"), {})
+        self.sequence_learner = SequenceLearner()
+        self.word_history = deque(maxlen=10)
+        self._load_sequences()
     
     @staticmethod
     def _load_json(path, default):
@@ -372,6 +414,117 @@ class DataManager:
         self.usage_stats[w] = self.usage_stats.get(w, 0) + 1
         if len(self.usage_stats) % 50 == 0:
             self._save_json(USAGE_STATS_FILE, self.usage_stats)
+    
+    def _load_sequences(self):
+        try:
+            path = os.path.join(BASE_DIR, "sequences.json")
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.sequence_learner.sequences = data.get('pairs', {})
+                    self.sequence_learner.trigrams = data.get('trigrams', {})
+        except:
+            pass
+        self._load_common_sequences()
+    
+    def _save_sequences(self):
+        try:
+            path = os.path.join(BASE_DIR, "sequences.json")
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'pairs': self.sequence_learner.sequences,
+                    'trigrams': self.sequence_learner.trigrams
+                }, f, indent=2, ensure_ascii=False)
+        except:
+            pass
+    
+    def _load_common_sequences(self):
+        common = {
+            'how': {'are': 100, 'to': 80, 'do': 70, 'is': 60},
+            'are': {'you': 100, 'we': 60, 'they': 50, 'your': 40},
+            'i': {'am': 100, 'have': 80, 'want': 70, 'need': 60, 'will': 50},
+            'you': {'are': 90, 'have': 70, 'want': 60, 'can': 50},
+            'thank': {'you': 100},
+            'thanks': {'for': 90, 'you': 70},
+            'please': {'help': 80, 'let': 70, 'send': 60},
+            'can': {'you': 90, 'i': 80, 'we': 60},
+            'will': {'be': 80, 'have': 70, 'do': 60},
+            'would': {'like': 90, 'be': 80, 'have': 70},
+            'assalam': {'o': 100},
+            'o': {'alaikum': 100},
+            'alaikum': {'assalam': 80},
+            'shukriya': {'bohat': 90},
+            'mein': {'thik': 80, 'ja': 70, 'karta': 60},
+            'thik': {'hoon': 100},
+            'karta': {'hoon': 90},
+            'what': {'is': 80, 'are': 70, 'do': 60},
+            'where': {'is': 80, 'are': 70, 'do': 50},
+            'when': {'is': 80, 'do': 60, 'will': 50},
+            'let': {'me': 90, 'us': 80},
+            'let\'s': {'go': 90, 'see': 70},
+            'going': {'to': 90, 'for': 60},
+            'want': {'to': 90, 'a': 50, 'the': 40},
+            'need': {'to': 90, 'a': 50, 'the': 40},
+            'have': {'to': 70, 'a': 60, 'the': 50},
+            'has': {'to': 70, 'been': 60, 'a': 50},
+            'do': {'you': 80, 'we': 60, 'not': 50},
+            'does': {'not': 80, 'the': 50},
+            'did': {'you': 80, 'not': 60, 'we': 50},
+            'should': {'be': 80, 'have': 70, 'we': 60},
+            'could': {'be': 80, 'have': 70, 'you': 60},
+            'would': {'like': 80, 'be': 70, 'you': 60},
+            'this': {'is': 80, 'will': 50, 'has': 40},
+            'that': {'is': 80, 'was': 70, 'will': 60},
+            'there': {'is': 90, 'are': 80, 'was': 50},
+            'here': {'is': 90, 'are': 70},
+            'well': {'done': 80, 'said': 60},
+            'very': {'good': 80, 'much': 70, 'well': 60},
+            'all': {'the': 70, 'of': 60, 'is': 50},
+            'some': {'of': 70, 'are': 60, 'people': 50},
+            'more': {'than': 80, 'and': 50, 'of': 40},
+            'also': {'have': 60, 'be': 50, 'has': 40},
+            'just': {'want': 60, 'got': 50, 'like': 40},
+            'still': {'have': 50, 'be': 40, 'going': 40},
+            'already': {'have': 70, 'done': 60, 'been': 50},
+            'never': {'have': 60, 'been': 50, 'thought': 40},
+            'always': {'be': 70, 'have': 60, 'wanted': 50},
+            'often': {'have': 50, 'go': 40, 'see': 30},
+            'quite': {'a': 60, 'good': 50, 'well': 40},
+        }
+        for word, next_words in common.items():
+            if word not in self.sequence_learner.sequences:
+                self.sequence_learner.sequences[word] = {}
+            for nw, count in next_words.items():
+                if nw not in self.sequence_learner.sequences[word]:
+                    self.sequence_learner.sequences[word][nw] = count
+    
+    def learn_from_text(self, text):
+        words = re.findall(r"[a-zA-Z\u0600-\u06FF']+", text.lower())
+        if len(words) >= 2:
+            self.word_history.extend(words)
+            self.sequence_learner.learn(list(self.word_history))
+            if len(self.word_history) % 10 == 0:
+                self._save_sequences()
+    
+    def predict_next_word(self, current_word):
+        prev_word = self.word_history[-1] if len(self.word_history) >= 1 else None
+        return self.sequence_learner.predict_next(current_word, prev_word)
+    
+    def get_smart_matches_with_prediction(self, prefix, lang='english'):
+        suggestions = []
+        prefix_l = prefix.lower()
+        predictions = self.predict_next_word(prefix_l)
+        for pred in predictions[:3]:
+            if pred.startswith(prefix_l):
+                suggestions.append(pred)
+            elif len(prefix_l) >= 2:
+                suggestions.append(pred)
+        regular = self.get_smart_matches_enhanced(prefix, lang)
+        for m in regular:
+            stripped = m
+            if stripped.lower() != prefix_l and stripped not in suggestions:
+                suggestions.append(stripped)
+        return suggestions[:MAX_SUGGESTIONS]
     
     @staticmethod
     def _save_json(path, data):
@@ -631,16 +784,26 @@ class GlobalAssistant:
             corrected = self.dm.correct_error(word, 'english')
             if corrected != word:
                 suggestions.append(f"🔧 {corrected}")
-            for m in self.dm.get_smart_matches_enhanced(word, 'english', prev_word):
+            for m in self.dm.get_smart_matches_with_prediction(word, 'english'):
                 if m.lower() != word.lower():
                     suggestions.append(m)
+            preds = self.dm.predict_next_word(word.lower())
+            for p in preds:
+                full = f"{word} {p}"
+                if full not in suggestions:
+                    suggestions.append(f"→ {full}")
         elif lang == 'roman_urdu':
             corrected = self.dm.correct_error(word, 'roman_urdu')
             if corrected != word:
                 suggestions.append(f"🇵🇰 {corrected}")
-            for m in self.dm.get_smart_matches_enhanced(word, 'roman_urdu', prev_word):
+            for m in self.dm.get_smart_matches_with_prediction(word, 'roman_urdu'):
                 if m.lower() != word.lower() and m not in suggestions:
                     suggestions.append(m)
+            preds = self.dm.predict_next_word(word.lower())
+            for p in preds:
+                full = f"{word} {p}"
+                if full not in suggestions:
+                    suggestions.append(f"→ {full}")
         elif lang == 'urdu_script':
             suggestions.append(f"📜 {word}")
         return suggestions[:MAX_SUGGESTIONS]
@@ -746,9 +909,13 @@ class GlobalAssistant:
                             self.typing_buffer.clear()
                         self.event_queue.put(('close',))
                         self._insert_suggestion(word, corrected + " ", lang, extra_bs=0)
+                        self.dm.learn_from_text(corrected + " ")
                         return True
                     else:
                         self.dm.learn_word(word, lang)
+                        with self.buffer_lock:
+                            text = ''.join(self.typing_buffer)
+                        self.dm.learn_from_text(text)
                 with self.buffer_lock:
                     self.typing_buffer.clear()
                 self.event_queue.put(('close',))
@@ -764,6 +931,9 @@ class GlobalAssistant:
                 if word:
                     lang = self._detect_language()
                     self.dm.learn_word(word, lang)
+                    with self.buffer_lock:
+                        text = ''.join(self.typing_buffer)
+                    self.dm.learn_from_text(text)
                 with self.buffer_lock:
                     self.typing_buffer.clear()
                 self.event_queue.put(('close',))
