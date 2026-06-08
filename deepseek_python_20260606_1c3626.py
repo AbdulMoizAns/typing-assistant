@@ -435,7 +435,7 @@ class SuggestionPopup:
         if idx:
             word = self.suggestions[idx[0]]
             self.close()
-            self.on_select(self.current_word, word)
+            self.root.after(10, lambda: self.on_select(self.current_word, word))
     
     def close(self):
         self.active = False
@@ -538,10 +538,11 @@ class GlobalAssistant:
             self.typing_buffer.clear()
     
     def _win32_event_filter(self, msg, data):
+        """Suppress Enter/Tab when popup is active to prevent form submission"""
         if self.popup and self.popup.active:
             if data.vkCode in (13, 9, 27, 38, 40):
                 if msg == 256:
-                    if data.vkCode == 13:
+                    if data.vkCode in (13, 9):
                         self.event_queue.put(('confirm',))
                     elif data.vkCode == 38:
                         self.event_queue.put(('up',))
@@ -549,6 +550,8 @@ class GlobalAssistant:
                         self.event_queue.put(('down',))
                     elif data.vkCode == 27:
                         self.event_queue.put(('close',))
+                if self.listener is not None:
+                    self.listener.suppress_event()
                 return False
         return True
     
