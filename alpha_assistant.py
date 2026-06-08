@@ -11,7 +11,6 @@ Author: Moiz Digital Service
 import tkinter as tk
 from tkinter import Listbox
 import pyautogui
-import pyperclip
 import threading
 import time
 import json
@@ -26,6 +25,12 @@ import platform
 from datetime import datetime
 from pynput import keyboard as pynput_keyboard
 from collections import deque
+
+try:
+    import keyboard
+    HAVE_KEYBOARD = True
+except ImportError:
+    HAVE_KEYBOARD = False
 
 # =============================================================
 # CONFIG
@@ -504,11 +509,12 @@ class GlobalAssistant:
         self.current_lang = 'english'
         
         # Hotkeys
-        try:
-            keyboard.add_hotkey('ctrl+alt+x', self.toggle_assistant)
-            keyboard.add_hotkey('ctrl+alt+s', self.show_session_summary)
-        except:
-            pass
+        if HAVE_KEYBOARD:
+            try:
+                keyboard.add_hotkey('ctrl+alt+x', self.toggle_assistant)
+                keyboard.add_hotkey('ctrl+alt+s', self.show_session_summary)
+            except:
+                pass
     
     def toggle_assistant(self):
         self.enabled = not self.enabled
@@ -727,19 +733,54 @@ class GlobalAssistant:
         splash.overrideredirect(True)
         splash.attributes('-topmost', True)
         
-        w, h = 500, 280
+        w, h = 520, 320
         sw, sh = splash.winfo_screenwidth(), splash.winfo_screenheight()
         splash.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
         
-        canvas = tk.Canvas(splash, width=w, height=h, bg="#0d1117", highlightthickness=0)
+        canvas = tk.Canvas(splash, width=w, height=h, bg="#0a0e17", highlightthickness=0)
         canvas.pack()
         
-        canvas.create_text(w//2, 50, text="ALPHA", fill="#ffffff", font=("Segoe UI", 48, "bold"))
-        canvas.create_text(w//2, 95, text="Intelligent Typing Assistant", fill="#58a6ff", font=("Segoe UI", 13))
-        canvas.create_text(w//2, 135, text="English • Roman Urdu • Universal", fill="#00ff88", font=("Segoe UI", 11))
-        canvas.create_line(100, 160, w-100, 160, fill="#30363d", width=1)
-        canvas.create_text(w//2, 195, text="✓ Ready • Click anywhere to start", fill="#8b949e", font=("Segoe UI", 10))
-        canvas.create_text(w//2, 235, text="Moiz Digital Service", fill="#6e7681", font=("Segoe UI", 9))
+        # Top accent bar
+        canvas.create_rectangle(0, 0, w, 3, fill="#00ff88", outline="")
+        
+        # Background glow circles
+        canvas.create_oval(50, 200, 200, 350, fill="", outline="#00ff88", width=1, dash=(4, 8))
+        canvas.create_oval(320, -50, 470, 100, fill="", outline="#58a6ff", width=1, dash=(4, 8))
+        
+        # Logo area
+        canvas.create_text(w//2, 55, text="ALPHA", fill="#ffffff", font=("Segoe UI", 44, "bold"))
+        canvas.create_text(w//2, 90, text="Intelligent Typing Assistant", fill="#58a6ff", font=("Segoe UI", 12))
+        
+        # Divider
+        canvas.create_line(80, 110, w-80, 110, fill="#1e2a45", width=1)
+        
+        # Feature badges
+        features = [
+            ("⚡", "Real-time Suggestions"),
+            ("🌐", "English + Roman Urdu"),
+            ("🛡️", "Universal Compatibility"),
+        ]
+        for i, (icon, text) in enumerate(features):
+            y = 140 + i * 32
+            canvas.create_oval(90, y-2, 108, y+16, fill="#0d1b2a", outline="#1e3a5f")
+            canvas.create_text(99, y+7, text=icon, font=("Segoe UI", 10))
+            canvas.create_text(180, y+7, text=text, fill="#8b949e", font=("Segoe UI", 10), anchor="w")
+        
+        # Bottom accent
+        canvas.create_line(80, 245, w-80, 245, fill="#1e2a45", width=1)
+        status_id = canvas.create_text(w//2, 270, text="✓ System Ready", fill="#00ff88", font=("Segoe UI", 10, "bold"))
+        canvas.create_text(w//2, 295, text="Moiz Digital Service", fill="#4a5568", font=("Segoe UI", 8))
+        
+        # Animated dots
+        def update_dots(count=0):
+            try:
+                dots = "." * (count % 4)
+                canvas.itemconfig(status_id, text=f"✓ System Ready{dots}")
+                splash.after(400, lambda: update_dots(count + 1))
+            except:
+                pass
+        
+        splash.after(400, update_dots)
         
         splash.bind("<Button-1>", lambda e: splash.destroy())
         splash.after(3500, splash.destroy)
