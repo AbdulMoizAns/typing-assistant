@@ -166,12 +166,14 @@ class _GUITHREADINFO(ctypes.Structure):
         ("rcCaret", _RECT),
     ]
 
-_last_caret_pos = (300, 300)
+_last_valid_caret = (300, 300)
 
 def get_caret_position():
-    """Get caret position - works in most Windows apps"""
-    global _last_caret_pos
+    """Get caret position with working fallback chain"""
+    global _last_valid_caret
+    
     try:
+        # Method 1: Windows GUI thread info
         info = _GUITHREADINFO()
         info.cbSize = ctypes.sizeof(_GUITHREADINFO)
         if ctypes.windll.user32.GetGUIThreadInfo(0, ctypes.byref(info)):
@@ -179,11 +181,30 @@ def get_caret_position():
                 pt = _POINT(info.rcCaret.left, info.rcCaret.bottom)
                 ctypes.windll.user32.ClientToScreen(info.hwndCaret, ctypes.byref(pt))
                 if pt.x > 0 and pt.y > 0:
-                    _last_caret_pos = (pt.x + 10, pt.y + 20)
-                    return _last_caret_pos
+                    _last_valid_caret = (pt.x + 10, pt.y + 25)
+                    return _last_valid_caret
+            
+            # Try GetCaretPos with focus window
+            if info.hwndFocus:
+                pt = _POINT(0, 0)
+                if ctypes.windll.user32.GetCaretPos(ctypes.byref(pt)):
+                    ctypes.windll.user32.ClientToScreen(info.hwndFocus, ctypes.byref(pt))
+                    if pt.x > 0 and pt.y > 0:
+                        _last_valid_caret = (pt.x + 10, pt.y + 25)
+                        return _last_valid_caret
     except:
         pass
-    return _last_caret_pos
+    
+    try:
+        # Method 2: Mouse position fallback
+        mouse = pyautogui.position()
+        if mouse.x > 0 and mouse.y > 0:
+            _last_valid_caret = (mouse.x + 10, mouse.y + 25)
+            return _last_valid_caret
+    except:
+        pass
+    
+    return _last_valid_caret
 
 
 class _POINT(ctypes.Structure):
@@ -252,6 +273,8 @@ class DataManager:
     
     def correct_error(self, word, lang='english'):
         w = word.lower()
+        if not w or len(w) < 2:
+            return word
         if lang == 'roman_urdu':
             if w in self._ru_corrections:
                 return self._ru_corrections[w]
@@ -581,11 +604,14 @@ class GlobalAssistant:
             
             elif key == pynput_keyboard.Key.space:
                 word = self._get_current_word()
+                print(f"[DEBUG] Space pressed, word='{word}'")
                 if word:
                     lang = self._detect_language()
                     corrected = self.dm.correct_error(word, lang)
+                    print(f"[DEBUG] lang={lang}, corrected='{corrected}'")
                     
                     if corrected != word:
+                        print(f"[DEBUG] Auto-correcting: {word} -> {corrected}")
                         self.typing_buffer.clear()
                         self.event_queue.put(('close',))
                         self._insert_suggestion(word, corrected + " ", extra_bs=1)
