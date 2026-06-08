@@ -813,25 +813,43 @@ class GlobalAssistant:
         splash.overrideredirect(True)
         splash.attributes('-topmost', True)
         
-        w, h = 500, 320  # Slightly taller for new features
+        w, h = 500, 300
         sw, sh = splash.winfo_screenwidth(), splash.winfo_screenheight()
         splash.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
         
         canvas = tk.Canvas(splash, width=w, height=h, bg="#0d1117", highlightthickness=0)
         canvas.pack()
         
-        canvas.create_text(w//2, 45, text="WELCOME TO", fill="#58a6ff", font=("Segoe UI", 14, "bold"))
-        canvas.create_text(w//2, 100, text="ALPHA", fill="#79c0ff", font=("Segoe UI", 48, "bold", "italic"))
-        canvas.create_text(w//2, 160, text="Developed by Moiz Digital", fill="#c9d1d9", font=("Segoe UI", 16))
-        canvas.create_line(70, 200, w-70, 200, fill="#30363d", width=2)
+        # Main title
+        canvas.create_text(w//2, 60, text="ALPHA", fill="#ffffff", 
+                          font=("Segoe UI", 52, "bold"))
+        canvas.create_text(w//2, 100, text="INTELLIGENT TYPING ASSISTANT", 
+                          fill="#58a6ff", font=("Segoe UI", 12, "bold"))
         
-        # New: Language Detection Feature
-        canvas.create_text(w//2, 225, text="✨ English + Roman Urdu Support ✨", fill="#49f1a6", font=("Segoe UI", 12))
-        canvas.create_text(w//2, 250, text="Smart Language Detection Enabled", fill="#8b949e", font=("Segoe UI", 11))
-        canvas.create_text(w//2, 275, text="All rights reserved by Moiz Digital Service", fill="#8b949e", font=("Segoe UI", 10))
+        # Tagline
+        canvas.create_text(w//2, 140, text="State of the Art Language Detection", 
+                          fill="#00ff88", font=("Segoe UI", 11))
+        
+        # Feature highlights
+        features = "✨ English • 🔤 Roman Urdu • 📜 Urdu Script"
+        canvas.create_text(w//2, 180, text=features, fill="#8b949e", font=("Segoe UI", 10))
+        
+        canvas.create_line(100, 200, w-100, 200, fill="#30363d", width=1)
+        
+        # Status
+        canvas.create_text(w//2, 225, text="✓ System Ready", 
+                          fill="#49f1a6", font=("Segoe UI", 10, "bold"))
+        canvas.create_text(w//2, 250, text="Moiz Digital Service", 
+                          fill="#6e7681", font=("Segoe UI", 9))
+        
+        # Animated dot
+        def animate_dot():
+            for i in range(3):
+                splash.after(i * 500, lambda: canvas.itemconfig(7, text="✓ System Ready" + "." * (i + 1)))
+        animate_dot()
         
         splash.bind("<Button-1>", lambda e: splash.destroy())
-        splash.after(4500, splash.destroy)
+        splash.after(4000, splash.destroy)
 
     def start(self):
         print("=" * 60)
