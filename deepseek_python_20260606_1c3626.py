@@ -512,17 +512,17 @@ class GlobalAssistant:
         
         self._insert_suggestion(original_word, suggestion)
     
-    def _insert_suggestion(self, original_word, suggestion):
+    def _insert_suggestion(self, original_word, suggestion, extra_bs=0):
         self.typing_buffer.clear()
         self.is_inserting = True
         self.dm.record_usage(suggestion)
-        threading.Thread(target=self._do_insert, args=(original_word, suggestion), daemon=True).start()
+        threading.Thread(target=self._do_insert, args=(original_word, suggestion, extra_bs), daemon=True).start()
     
-    def _do_insert(self, original_word, suggestion):
+    def _do_insert(self, original_word, suggestion, extra_bs=0):
         try:
             time.sleep(FOCUS_RETURN_DELAY)
             
-            for _ in range(len(original_word)):
+            for _ in range(len(original_word) + extra_bs):
                 self.keyboard.press(pynput_keyboard.Key.backspace)
                 self.keyboard.release(pynput_keyboard.Key.backspace)
                 time.sleep(BACKSPACE_DELAY)
@@ -583,7 +583,7 @@ class GlobalAssistant:
                     if corrected != word:
                         self.typing_buffer.clear()
                         self.event_queue.put(('close',))
-                        self._insert_suggestion(word, corrected + " ")
+                        self._insert_suggestion(word, corrected + " ", extra_bs=1)
                         return True
                     else:
                         self.dm.learn_word(word, lang)
