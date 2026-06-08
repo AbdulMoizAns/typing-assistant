@@ -176,7 +176,8 @@ class DictIndex:
 
 class DataManager:
     __slots__ = ('suggestions', 'user_learning', 'usage_stats', 'dict_index', 
-                 'errors', 'ru_learning', '_ru_corrections', '_ru_prefixes')
+                 'errors', 'ru_learning', '_ru_corrections', '_ru_prefixes',
+                 'word_pairs', 'recency_tracker')
     
     def __init__(self):
         self.suggestions = self._load_json(SUGGESTIONS_FILE, {})
@@ -199,6 +200,8 @@ class DataManager:
         self.ru_learning = self._load_json(os.path.join(BASE_DIR, "ru_learning.json"), {})
         self._ru_corrections = ROMAN_URDU_CORRECTIONS
         self._ru_prefixes = ROMAN_URDU_PREFIXES
+        self.word_pairs = self._load_json(os.path.join(BASE_DIR, "word_pairs.json"), {})
+        self.recency_tracker = self._load_json(os.path.join(BASE_DIR, "recency.json"), {})
     
     @staticmethod
     def _load_json(path, default):
@@ -275,6 +278,83 @@ class DataManager:
         
         results.sort(key=lambda x: x[1], reverse=True)
         return [w for w, _ in results[:MAX_SUGGESTIONS]]
+    
+    def get_smart_matches_enhanced(self, prefix, lang='english', prev_word=''):
+        if not prefix or len(prefix) < MIN_WORD_LENGTH:
+            return []
+        
+        prefix_l = prefix.lower()
+        seen = set()
+        results = []
+        
+        WEIGHTS = {
+            'exact_match': 1000, 'context_match': 800, 'user_learning': 500,
+            'recency': 400, 'usage_freq': 300, 'prefix_match': 200,
+            'roman_urdu': 150, 'dictionary': 100, 'custom': 60
+        }
+        
+        key = f"{prev_word}|{prefix_l}"
+        if key in self.word_pairs:
+            for word, score in sorted(self.word_pairs[key].items(), key=lambda x: x[1], reverse=True)[:3]:
+                if word not in seen:
+                    seen.add(word)
+                    results.append((word, WEIGHTS['context_match'] + score * 10))
+        
+        if prefix_l in self.errors:
+            corrected = self.errors[prefix_l]
+            if corrected not in seen:
+                seen.add(corrected)
+                results.append((corrected, WEIGHTS['exact_match']))
+        
+        for w, cnt in self.user_learning.items():
+            if w.startswith(prefix_l) and w not in seen:
+                recency = self.recency_tracker.get(w, 0)
+                score = WEIGHTS['user_learning'] + (cnt * 10) + (recency * 2)
+                results.append((w, score))
+                seen.add(w)
+        
+        for w, cnt in self.usage_stats.items():
+            if w.startswith(prefix_l) and w not in seen:
+                score = WEIGHTS['usage_freq'] + (cnt * 5)
+                results.append((w, score))
+                seen.add(w)
+        
+        if self.dict_index:
+            for w in self.dict_index.prefix_search(prefix_l, limit=15):
+                if w not in seen:
+                    score = WEIGHTS['dictionary']
+                    if len(w) - len(prefix_l) <= 3:
+                        score += 50
+                    results.append((w, score))
+                    seen.add(w)
+        
+        if lang == 'roman_urdu':
+            for w in self._ru_corrections.keys():
+                if w.startswith(prefix_l) and w not in seen:
+                    results.append((w, WEIGHTS['roman_urdu']))
+                    seen.add(w)
+        
+        for w in self.get_all_custom_words():
+            if w.lower().startswith(prefix_l) and w not in seen:
+                results.append((w, WEIGHTS['custom']))
+                seen.add(w)
+        
+        results.sort(key=lambda x: x[1], reverse=True)
+        return [w for w, _ in results[:MAX_SUGGESTIONS]]
+    
+    def learn_from_selection(self, original_word, selected_word, prev_word=''):
+        if prev_word:
+            key = f"{prev_word}|{original_word.lower()}"
+            if key not in self.word_pairs:
+                self.word_pairs[key] = {}
+            self.word_pairs[key][selected_word] = self.word_pairs[key].get(selected_word, 0) + 1
+            self._save_json(os.path.join(BASE_DIR, "word_pairs.json"), self.word_pairs)
+        
+        self.recency_tracker[selected_word] = time.time()
+        if len(self.recency_tracker) > 500:
+            sorted_items = sorted(self.recency_tracker.items(), key=lambda x: x[1])
+            self.recency_tracker = dict(sorted_items[-500:])
+        self._save_json(os.path.join(BASE_DIR, "recency.json"), self.recency_tracker)
     
     def learn_word(self, word, lang='english'):
         w = word.lower()
@@ -542,18 +622,23 @@ class GlobalAssistant:
     
     def _get_suggestions(self, word, lang):
         suggestions = []
+        with self.buffer_lock:
+            text = ''.join(self.typing_buffer)
+        words_list = re.findall(r"[a-zA-Z\u0600-\u06FF']+", text)
+        prev_word = words_list[-2] if len(words_list) >= 2 else ''
+        
         if lang == 'english':
             corrected = self.dm.correct_error(word, 'english')
             if corrected != word:
                 suggestions.append(f"🔧 {corrected}")
-            for m in self.dm.get_smart_matches(word, 'english'):
+            for m in self.dm.get_smart_matches_enhanced(word, 'english', prev_word):
                 if m.lower() != word.lower():
                     suggestions.append(m)
         elif lang == 'roman_urdu':
             corrected = self.dm.correct_error(word, 'roman_urdu')
             if corrected != word:
                 suggestions.append(f"🇵🇰 {corrected}")
-            for m in self.dm.get_smart_matches(word, 'roman_urdu'):
+            for m in self.dm.get_smart_matches_enhanced(word, 'roman_urdu', prev_word):
                 if m.lower() != word.lower() and m not in suggestions:
                     suggestions.append(m)
         elif lang == 'urdu_script':
@@ -565,6 +650,11 @@ class GlobalAssistant:
             if suggestion.startswith(prefix):
                 suggestion = suggestion[len(prefix):]
                 break
+        with self.buffer_lock:
+            text = ''.join(self.typing_buffer)
+        words_list = re.findall(r"[a-zA-Z\u0600-\u06FF']+", text)
+        prev_word = words_list[-2] if len(words_list) >= 2 else ''
+        self.dm.learn_from_selection(original_word, suggestion, prev_word)
         self._insert_suggestion(original_word, suggestion, self.current_lang)
     
     def _insert_suggestion(self, original_word, suggestion, lang, extra_bs=0):
