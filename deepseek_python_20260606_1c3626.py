@@ -11,7 +11,7 @@ v3.3 Features:
 """
 
 import tkinter as tk
-from tkinter import Listbox
+from tkinter import Listbox, scrolledtext
 import pyautogui
 import pyperclip
 import threading
@@ -23,6 +23,10 @@ import queue
 import bisect
 import ctypes
 import difflib
+import tempfile
+import atexit
+import platform
+from datetime import datetime
 from pynput import keyboard as pynput_keyboard
 from collections import deque
 
@@ -184,14 +188,12 @@ class _GUITHREADINFO(ctypes.Structure):
         ("rcCaret", _RECT),
     ]
 
-_last_valid_caret = (300, 300)
+_last_caret_pos = (300, 300)
 
 def get_caret_position():
-    """Get caret position with working fallback chain"""
-    global _last_valid_caret
-    
+    """Get caret position - tracked on every keystroke"""
+    global _last_caret_pos
     try:
-        # Method 1: Windows GUI thread info
         info = _GUITHREADINFO()
         info.cbSize = ctypes.sizeof(_GUITHREADINFO)
         if ctypes.windll.user32.GetGUIThreadInfo(0, ctypes.byref(info)):
@@ -199,30 +201,19 @@ def get_caret_position():
                 pt = _POINT(info.rcCaret.left, info.rcCaret.bottom)
                 ctypes.windll.user32.ClientToScreen(info.hwndCaret, ctypes.byref(pt))
                 if pt.x > 0 and pt.y > 0:
-                    _last_valid_caret = (pt.x + 10, pt.y + 25)
-                    return _last_valid_caret
+                    _last_caret_pos = (pt.x + 10, pt.y + 25)
+                    return _last_caret_pos
             
-            # Try GetCaretPos with focus window
             if info.hwndFocus:
                 pt = _POINT(0, 0)
                 if ctypes.windll.user32.GetCaretPos(ctypes.byref(pt)):
                     ctypes.windll.user32.ClientToScreen(info.hwndFocus, ctypes.byref(pt))
                     if pt.x > 0 and pt.y > 0:
-                        _last_valid_caret = (pt.x + 10, pt.y + 25)
-                        return _last_valid_caret
+                        _last_caret_pos = (pt.x + 10, pt.y + 25)
+                        return _last_caret_pos
     except:
         pass
-    
-    try:
-        # Method 2: Mouse position fallback
-        mouse = pyautogui.position()
-        if mouse.x > 0 and mouse.y > 0:
-            _last_valid_caret = (mouse.x + 10, mouse.y + 25)
-            return _last_valid_caret
-    except:
-        pass
-    
-    return _last_valid_caret
+    return _last_caret_pos
 
 
 class _POINT(ctypes.Structure):
@@ -497,12 +488,101 @@ class SuggestionPopup:
 
 
 # =============================================================
+# SESSION TRACKER
+# =============================================================
+class SessionTracker:
+    def __init__(self):
+        self.session_file = None
+        self.help_data = {
+            'session_start': datetime.now().isoformat(),
+            'computer_name': platform.node(),
+            'os': platform.system(),
+            'apps_helped': {},
+            'total_corrections': 0,
+            'words_corrected': [],
+            'languages_used': set()
+        }
+        self._create_session_file()
+    
+    def _create_session_file(self):
+        try:
+            temp_dir = tempfile.gettempdir()
+            self.session_file = os.path.join(temp_dir, f"alpha_session_{os.getpid()}.json")
+            with open(self.session_file, 'w', encoding='utf-8') as f:
+                json.dump(self.help_data, f, indent=2, ensure_ascii=False)
+            atexit.register(self.cleanup)
+            print(f"  Session: {self.session_file}")
+        except:
+            pass
+    
+    def record_help(self, app_name, original_word, corrected_word, language):
+        if not app_name:
+            app_name = "Unknown"
+        if app_name not in self.help_data['apps_helped']:
+            self.help_data['apps_helped'][app_name] = 0
+        self.help_data['apps_helped'][app_name] += 1
+        self.help_data['total_corrections'] += 1
+        self.help_data['words_corrected'].append({
+            'time': datetime.now().isoformat(),
+            'app': app_name,
+            'from': original_word,
+            'to': corrected_word,
+            'lang': language
+        })
+        if len(self.help_data['words_corrected']) > 50:
+            self.help_data['words_corrected'] = self.help_data['words_corrected'][-50:]
+        self.help_data['languages_used'].add(language)
+        
+        data_to_save = self.help_data.copy()
+        data_to_save['languages_used'] = list(self.help_data['languages_used'])
+        try:
+            with open(self.session_file, 'w', encoding='utf-8') as f:
+                json.dump(data_to_save, f, indent=2, ensure_ascii=False)
+        except:
+            pass
+    
+    def get_active_app(self):
+        try:
+            hwnd = ctypes.windll.user32.GetForegroundWindow()
+            length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+            buff = ctypes.create_unicode_buffer(length + 1)
+            ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+            window_title = buff.value
+            if 'WhatsApp' in window_title: return 'WhatsApp'
+            if 'Chrome' in window_title: return 'Google Chrome'
+            if 'Notepad' in window_title: return 'Notepad'
+            if 'Word' in window_title: return 'Microsoft Word'
+            if 'VS Code' in window_title: return 'VS Code'
+            if 'Discord' in window_title: return 'Discord'
+            if 'Telegram' in window_title: return 'Telegram'
+            return window_title[:30] if window_title else 'Unknown'
+        except:
+            return 'Unknown'
+    
+    def get_summary(self):
+        s = f"Start: {self.help_data['session_start'][:19]} | PC: {self.help_data['computer_name']} | OS: {self.help_data['os']}"
+        s += f"\nCorrections: {self.help_data['total_corrections']} | Languages: {', '.join(self.help_data['languages_used'])}"
+        for app, count in self.help_data['apps_helped'].items():
+            s += f"\n  {app}: {count}x"
+        return s
+    
+    def cleanup(self):
+        if self.session_file and os.path.exists(self.session_file):
+            try:
+                os.remove(self.session_file)
+            except:
+                pass
+
+
+# =============================================================
 # GLOBAL ASSISTANT (Main Class)
 # =============================================================
 class GlobalAssistant:
     def __init__(self):
         self.dm = DataManager()
         self.lang_detector = LanguageDetector()
+        self.session = SessionTracker()
+        self.current_app = "Unknown"
         self.keyboard = pynput_keyboard.Controller()
         self.enabled = True
         self.is_inserting = False
@@ -561,6 +641,8 @@ class GlobalAssistant:
         self._insert_suggestion(original_word, suggestion)
     
     def _insert_suggestion(self, original_word, suggestion, extra_bs=0):
+        self.current_app = self.session.get_active_app()
+        self.session.record_help(self.current_app, original_word, suggestion.strip(), self.current_lang)
         self.typing_buffer.clear()
         self.is_inserting = True
         self.dm.record_usage(suggestion)
@@ -604,6 +686,7 @@ class GlobalAssistant:
         return True
     
     def on_press(self, key):
+        self.current_app = self.session.get_active_app()
         if self.is_inserting:
             return True
         
@@ -624,6 +707,20 @@ class GlobalAssistant:
                 return True
             
             if hasattr(key, 'char') and key.char and ord(key.char) >= 32:
+                # Track caret position on every keystroke
+                try:
+                    info = _GUITHREADINFO()
+                    info.cbSize = ctypes.sizeof(_GUITHREADINFO)
+                    if ctypes.windll.user32.GetGUIThreadInfo(0, ctypes.byref(info)):
+                        if info.hwndCaret:
+                            pt = _POINT(info.rcCaret.left, info.rcCaret.bottom)
+                            ctypes.windll.user32.ClientToScreen(info.hwndCaret, ctypes.byref(pt))
+                            if pt.x > 0 and pt.y > 0:
+                                global _last_caret_pos
+                                _last_caret_pos = (pt.x + 10, pt.y + 25)
+                except:
+                    pass
+                
                 self.typing_buffer.append(key.char)
                 self.event_queue.put(('suggest', self._get_current_word()))
             
@@ -764,6 +861,8 @@ class GlobalAssistant:
                 self.listener.stop()
             DataManager._save_json(USER_LEARNING_FILE, self.dm.user_learning)
             DataManager._save_json(USAGE_STATS_FILE, self.dm.usage_stats)
+            print("=" * 50)
+            print(self.session.get_summary())
             print("=" * 50)
             print("  Goodbye!")
             print("=" * 50)
