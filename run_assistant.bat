@@ -25,7 +25,7 @@ echo Starting Global Typing Assistant...
 echo  - Type anywhere, suggestions appear automatically
 echo  - Close console to stop
 echo.
-python "deepseek_python_20260606_1c3626.py"
+python "alpha_assistant.py"
 
 if errorlevel 1 (
     echo.
