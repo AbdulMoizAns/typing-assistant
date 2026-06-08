@@ -350,34 +350,26 @@ class DataManager:
         return words
 
     def correct_error(self, word, lang='english'):
-        """Correct error based on language"""
+        """Correct error based on language - OPTIMIZED"""
         w = word.lower()
         
         if lang == 'roman_urdu':
-            # Check Roman Urdu error map first
             if w in ROMAN_URDU_ERRORS:
                 return ROMAN_URDU_ERRORS[w]
-            
-            # Check learned Roman Urdu words
             if w in self.ru_learning and self.ru_learning[w] > 2:
                 return w
-            
-            # Check user learning
-            if w in self.user_learning and self.user_learning[w] > 2:
+            if w in self.user_learning and self.user_learning[w] > 3:
                 return w
-            
-            # Fuzzy match for Roman Urdu
-            if len(w) >= 3:
+            if len(w) >= 4 and len(ROMAN_URDU_ERRORS) < 200:
                 matches = difflib.get_close_matches(w, ROMAN_URDU_ERRORS.keys(), n=1, cutoff=0.75)
                 if matches:
                     return ROMAN_URDU_ERRORS[matches[0]]
-            
-            return word  # No correction
+            return word
         
         else:  # English
             if w in self.errors:
                 return self.errors[w]
-            if len(w) >= 4:
+            if len(w) >= 5 and len(self.errors) < 1000:
                 matches = difflib.get_close_matches(w, self.errors.keys(), n=1, cutoff=0.78)
                 if matches:
                     return self.errors[matches[0]]
@@ -392,7 +384,7 @@ class DataManager:
         return self.ru_learning.get(w, 0)
 
     def get_smart_matches(self, prefix, lang='english'):
-        """Get smart matches based on language"""
+        """Get smart matches based on language - OPTIMIZED"""
         if not prefix or len(prefix) < MIN_WORD_LENGTH:
             return []
         
@@ -401,8 +393,6 @@ class DataManager:
         results = []
         
         if lang == 'roman_urdu':
-            # Roman Urdu specific suggestions
-            # 1. Prefix-based suggestions from ROMAN_URDU_SUGGESTIONS
             first_char = prefix_l[0] if prefix_l else ''
             if first_char in ROMAN_URDU_SUGGESTIONS:
                 for w in ROMAN_URDU_SUGGESTIONS[first_char]:
@@ -410,45 +400,47 @@ class DataManager:
                         seen.add(w)
                         results.append((w, 150))
             
-            # 2. Learned Roman Urdu words
-            for w, count in sorted(self.ru_learning.items(), key=lambda x: x[1], reverse=True):
+            ru_items = list(self.ru_learning.items())
+            ru_items.sort(key=lambda x: x[1], reverse=True)
+            for w, count in ru_items[:50]:
                 if w.startswith(prefix_l) and w not in seen and count > 2:
                     seen.add(w)
                     results.append((w, count + 100))
             
-            # 3. User learning (might contain Roman Urdu)
-            for w, count in sorted(self.user_learning.items(), key=lambda x: x[1], reverse=True):
+            ul_items = list(self.user_learning.items())
+            ul_items.sort(key=lambda x: x[1], reverse=True)
+            for w, count in ul_items[:50]:
                 if w.startswith(prefix_l) and w not in seen and count > 3:
                     seen.add(w)
                     results.append((w, count + 50))
             
-            # 4. Common Roman Urdu words from ROMAN_URDU_ERRORS
             for w in ROMAN_URDU_ERRORS.keys():
                 if w.startswith(prefix_l) and w not in seen:
                     seen.add(w)
                     results.append((w, 80))
             
-            # 5. Also add corrected versions as suggestions
             for wrong, correct in ROMAN_URDU_ERRORS.items():
                 if correct.startswith(prefix_l) and correct not in seen:
                     seen.add(correct)
                     results.append((correct, 70))
         
         else:  # English
-            # Existing English logic
             for w in self.get_all_custom_words():
-                if w.lower().startswith(prefix_l) or prefix_l in w.lower():
+                w_low = w.lower()
+                if w_low.startswith(prefix_l) or prefix_l in w_low:
                     if w not in seen:
                         seen.add(w)
                         results.append((w, self.get_word_weight(w) + 100))
-
-            for w, count in sorted(self.user_learning.items(), key=lambda x: x[1], reverse=True):
+            
+            ul_items = list(self.user_learning.items())
+            ul_items.sort(key=lambda x: x[1], reverse=True)
+            for w, count in ul_items[:100]:
                 if w.lower().startswith(prefix_l) and w not in seen:
                     seen.add(w)
                     results.append((w, count + 50))
-
+            
             if self.dict_index:
-                for w in self.dict_index.prefix_search(prefix_l, limit=20):
+                for w in self.dict_index.prefix_search(prefix_l, limit=15):
                     if w not in seen:
                         seen.add(w)
                         results.append((w, self.get_word_weight(w)))
@@ -671,23 +663,37 @@ class GlobalAssistant:
         threading.Thread(target=self._do_insert, args=(original_word, suggestion, extra_bs), daemon=True).start()
 
     def _do_insert(self, original_word, suggestion, extra_bs=0):
-        old_pause = pyautogui.PAUSE
         try:
             time.sleep(FOCUS_RETURN_DELAY)
-            pyautogui.PAUSE = 0
+            
             total_bs = len(original_word) + extra_bs
-            pyautogui.press('backspace', presses=total_bs)
+            for _ in range(total_bs):
+                self.keyboard_controller.press(pynput_keyboard.Key.backspace)
+                self.keyboard_controller.release(pynput_keyboard.Key.backspace)
+                time.sleep(0.005)
+            
             old_clip = ""
-            try: old_clip = pyperclip.paste()
-            except: pass
+            try: 
+                old_clip = pyperclip.paste()
+            except: 
+                pass
+            
             pyperclip.copy(suggestion)
-            pyautogui.hotkey('ctrl', 'v')
-            try: pyperclip.copy(old_clip)
-            except: pass
+            time.sleep(0.03)
+            
+            with self.keyboard_controller.pressed(pynput_keyboard.Key.ctrl):
+                self.keyboard_controller.press('v')
+                self.keyboard_controller.release('v')
+            
+            time.sleep(0.05)
+            try: 
+                pyperclip.copy(old_clip)
+            except: 
+                pass
+
         except Exception as e:
             print(f"[Insert] Error: {e}")
         finally:
-            pyautogui.PAUSE = old_pause
             self.is_inserting = False
             self.typing_buffer.clear()
 
@@ -701,7 +707,9 @@ class GlobalAssistant:
                     elif data.vkCode == 38: self.event_queue.put(('popup_up',))
                     elif data.vkCode == 40: self.event_queue.put(('popup_down',))
                     elif data.vkCode == 27: self.event_queue.put(('popup_close',))
-                return False  # Don't let pynput process suppressed keys
+                if self.listener is not None:
+                    self.listener.suppress_event()
+                return False
         return True
 
     def on_press(self, key):
