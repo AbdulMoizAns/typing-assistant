@@ -45,7 +45,7 @@ MIN_WORD_LENGTH    = 2
 DEBOUNCE_TIME      = 0.3
 FOCUS_RETURN_DELAY = 0.12
 POLL_INTERVAL_MS   = 50
-BACKSPACE_DELAY    = 0.003
+BACKSPACE_DELAY    = 0.008
 
 # =============================================================
 # LANGUAGE DETECTION
@@ -522,7 +522,9 @@ class GlobalAssistant:
         try:
             time.sleep(FOCUS_RETURN_DELAY)
             
-            for _ in range(len(original_word) + extra_bs):
+            total_bs = len(original_word) + extra_bs + 1
+            print(f"[INSERT] word='{original_word}' len={len(original_word)} extra_bs={extra_bs} total_bs={total_bs} suggestion='{suggestion}'")
+            for _ in range(total_bs):
                 self.keyboard.press(pynput_keyboard.Key.backspace)
                 self.keyboard.release(pynput_keyboard.Key.backspace)
                 time.sleep(BACKSPACE_DELAY)
