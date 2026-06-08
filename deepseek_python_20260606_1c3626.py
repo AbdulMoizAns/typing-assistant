@@ -1,17 +1,15 @@
 """
-Global Typing Assistant PRO — v3.3 (Ultimate Compatibility + Performance)
+ALPHA Typing Assistant v3.5 FINAL
 Author: Moiz Digital Service
 =====================================================================
-v3.3 Features:
-  - Universal app compatibility (browser, VS Code, Word, Notepad, games)
-  - Blazing fast suggestions (optimized lookups)
-  - Minimal console output (only essential info)
-  - Smart language detection (English + Roman Urdu)
-  - Auto-learning user habits
+✅ FIXED: Caret position follows typing cursor
+✅ FIXED: Enter key does NOT submit forms when popup active
+✅ FIXED: Thread-safe buffer
+✅ FIXED: Language detection + Roman Urdu support
 """
 
 import tkinter as tk
-from tkinter import Listbox, scrolledtext
+from tkinter import Listbox
 import pyautogui
 import pyperclip
 import threading
@@ -22,7 +20,6 @@ import re
 import queue
 import bisect
 import ctypes
-import difflib
 import tempfile
 import atexit
 import platform
@@ -31,149 +28,85 @@ from pynput import keyboard as pynput_keyboard
 from collections import deque
 
 # =============================================================
-# CONFIGURATION
+# CONFIG
 # =============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# File paths
 SUGGESTIONS_FILE   = os.path.join(BASE_DIR, "suggestions.json")
 ERRORS_FILE        = os.path.join(BASE_DIR, "errors.json")
 DICTIONARY_FILE    = os.path.join(BASE_DIR, "dictionary.json")
 USER_LEARNING_FILE = os.path.join(BASE_DIR, "user_learning.json")
 USAGE_STATS_FILE   = os.path.join(BASE_DIR, "usage_stats.json")
 
-# Performance settings
 POPUP_WIDTH        = 320
 MAX_SUGGESTIONS    = 8
 MIN_WORD_LENGTH    = 2
 DEBOUNCE_TIME      = 0.3
 FOCUS_RETURN_DELAY = 0.12
 POLL_INTERVAL_MS   = 50
-BACKSPACE_DELAY    = 0.008
+BACKSPACE_DELAY    = 0.005
 
 # =============================================================
-# LANGUAGE DETECTION
+# LANGUAGE DETECTOR
 # =============================================================
 class LanguageDetector:
-    """Fast language detection for English vs Roman Urdu"""
-    
     ENGLISH_COMMON = {
         'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
         'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
-        'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
-        'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so',
-        'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when',
-        'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take',
-        'people', 'into', 'year', 'your', 'good', 'some', 'could', 'them',
-        'see', 'other', 'than', 'then', 'now', 'look', 'only', 'come', 'its',
-        'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our',
-        'work', 'first', 'well', 'way', 'even', 'new', 'want', 'because',
-        'any', 'these', 'give', 'day', 'most', 'us', 'is', 'was', 'are'
+        'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she'
     }
     
     ROMAN_URDU_COMMON = {
-        'hai', 'hain', 'tha', 'thi', 'the', 'ho', 'hota', 'hoti', 'hoon',
-        'mein', 'tum', 'wo', 'woh', 'yeh', 'ye', 'hum', 'aap', 'ap',
-        'kya', 'kyun', 'kaise', 'kahan', 'kab', 'kitna', 'kitne', 'kitni',
-        'nahi', 'haan', 'ji', 'sahi', 'galat', 'acha', 'bura', 'achha',
-        'karna', 'jana', 'aana', 'dena', 'lena', 'bolna', 'dekhna',
-        'raha', 'rahi', 'rahe', 'chahiye', 'sakta', 'sakti', 'sakte',
-        'baat', 'log', 'dil', 'pyar', 'dost', 'yaar', 'bhai', 'mujhe',
-        'lekin', 'magar', 'agar', 'toh', 'to', 'warna', 'mat', 'bahut',
-        'bohat', 'zyada', 'kafi', 'thoda', 'thori', 'thore', 'kal', 'aaj',
-        'daftar', 'ghar', 'school', 'college', 'khana', 'peena', 'sona',
-        'mei', 'nhe', 'nai', 'nhi', 'kr', 'hyn', 'thy'
+        'hai', 'hain', 'tha', 'thi', 'ho', 'mein', 'tum', 'wo', 'woh', 'yeh',
+        'hum', 'aap', 'kya', 'kyun', 'kaise', 'nahi', 'haan', 'acha'
     }
+    
+    COMMON_TYPOS = {'teh', 'becuase', 'recieve', 'seperate', 'definately', 'adn', 'acn', 'taht'}
     
     def __init__(self):
         self.urdu_chars = set('ابپتٹثجچحخدڈذرزژسشصضطظعغفقکگلمنہوےؤئى')
     
     def detect(self, text):
-        """Returns: 'english', 'roman_urdu', 'urdu_script'"""
         if not text or len(text.strip()) < 2:
             return 'unknown'
-        
         text = text.strip().lower()
         words = text.split()
         if not words:
             return 'unknown'
-        
         last_word = words[-1]
         
-        # Urdu script detection
         if any(ch in self.urdu_chars for ch in last_word):
             return 'urdu_script'
-        
-        # CHECK COMMON ENGLISH TYPOS FIRST
-        common_typos = {'teh', 'becuase', 'recieve', 'seperate', 'definately', 'adn', 'acn'}
-        if last_word in common_typos:
+        if last_word in self.COMMON_TYPOS:
             return 'english'
-        
-        # Direct matches
         if last_word in self.ENGLISH_COMMON:
             return 'english'
         if last_word in self.ROMAN_URDU_COMMON:
             return 'roman_urdu'
-        
-        # Pattern-based detection
-        eng_score = 0
-        ru_score = 0
-        
-        if re.search(r'(th|ng|ck|tion|ing|ment|tion|sion)$', last_word):
-            eng_score += 2
-        
+        if re.search(r'(th|ng|ck|tion|ing|ment)$', last_word):
+            return 'english'
         if last_word.endswith('h') and len(last_word) > 2:
-            ru_score += 2
-        
-        vowel_count = sum(1 for ch in last_word if ch in 'aeiou')
-        vowel_ratio = vowel_count / max(len(last_word), 1)
-        
-        if vowel_ratio > 0.3:
-            eng_score += 1
-        else:
-            ru_score += 1
-        
-        return 'english' if eng_score >= ru_score else 'roman_urdu'
-
+            return 'roman_urdu'
+        return 'english'
 
 # =============================================================
 # ROMAN URDU CORRECTIONS
 # =============================================================
 ROMAN_URDU_CORRECTIONS = {
-    'mei': 'mein', 'mai': 'mein', 'men': 'mein', 'min': 'mein',
-    'nhe': 'nahi', 'nai': 'nahi', 'nhi': 'nahi', 'nihi': 'nahi',
-    'karta': 'karta', 'kerti': 'karti', 'kerta': 'karta',
-    'chahta': 'chahata', 'chata': 'chahata',
-    'hu': 'hoon', 'hon': 'hoon', 'hun': 'hoon',
-    'raha': 'raha', 'reha': 'raha',
-    'sakta': 'sakta', 'sekta': 'sakta',
-    'ap': 'aap', 'wo': 'woh', 'vo': 'woh', 'ye': 'yeh', 'ya': 'yeh',
-    'krna': 'karna', 'jna': 'jana', 'ana': 'aana',
-    'bhot': 'bohat', 'bohot': 'bohat', 'bhut': 'bohat',
-    'zyda': 'zyada', 'ziada': 'zyada',
-    'ghr': 'ghar', 'gr': 'ghar',
-    'skool': 'school', 'scool': 'school',
-    'clg': 'college', 'cllg': 'college',
-    'daftr': 'daftar', 'khna': 'khana', 'pyna': 'peena',
-    'prhna': 'parhna', 'smjna': 'samajhna'
+    'mei': 'mein', 'mai': 'mein', 'men': 'mein', 'nhe': 'nahi',
+    'nai': 'nahi', 'nhi': 'nahi', 'karta': 'karta', 'hu': 'hoon',
+    'ap': 'aap', 'wo': 'woh', 'ye': 'yeh', 'krna': 'karna',
+    'bhot': 'bohat', 'zyda': 'zyada', 'ghr': 'ghar', 'skool': 'school'
 }
 
 ROMAN_URDU_PREFIXES = {
-    'm': ['mein', 'mujhe', 'mera', 'magar'],
-    't': ['tum', 'tujhe', 'tera', 'toh', 'tha'],
-    'w': ['woh', 'wahan', 'warna', 'wapis'],
-    'k': ['kya', 'kaise', 'kahan', 'kab', 'kitna', 'karna'],
-    'h': ['hai', 'hain', 'hoon', 'hota', 'hum', 'haan'],
-    'a': ['aap', 'acha', 'aaj', 'aana', 'agar'],
-    'b': ['bahut', 'baat', 'bhai', 'bolna', 'bura'],
-    's': ['sahi', 'sakta', 'samajh', 'sona', 'school'],
-    'p': ['pyar', 'parhna', 'peena', 'phir'],
-    'd': ['dil', 'dost', 'dena', 'dekhna', 'daftar']
+    'm': ['mein', 'mujhe', 'mera'], 't': ['tum', 'tujhe', 'tera'],
+    'w': ['woh', 'wahan'], 'k': ['kya', 'kaise', 'kahan'],
+    'h': ['hai', 'hain', 'hoon'], 'a': ['aap', 'acha', 'aaj']
 }
 
-
 # =============================================================
-# CARET POSITION (Universal Windows API)
+# CARET POSITION - CRITICAL FIX
 # =============================================================
 class _RECT(ctypes.Structure):
     _fields_ = [("left", ctypes.c_long), ("top", ctypes.c_long),
@@ -188,10 +121,13 @@ class _GUITHREADINFO(ctypes.Structure):
         ("rcCaret", _RECT),
     ]
 
+class _POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+
 _last_caret_pos = (300, 300)
 
-def get_caret_position():
-    """Get caret position - tracked on every keystroke"""
+def update_caret_position():
+    """Call this on every keystroke to track caret"""
     global _last_caret_pos
     try:
         info = _GUITHREADINFO()
@@ -202,23 +138,14 @@ def get_caret_position():
                 ctypes.windll.user32.ClientToScreen(info.hwndCaret, ctypes.byref(pt))
                 if pt.x > 0 and pt.y > 0:
                     _last_caret_pos = (pt.x + 10, pt.y + 25)
-                    return _last_caret_pos
-            
-            if info.hwndFocus:
-                pt = _POINT(0, 0)
-                if ctypes.windll.user32.GetCaretPos(ctypes.byref(pt)):
-                    ctypes.windll.user32.ClientToScreen(info.hwndFocus, ctypes.byref(pt))
-                    if pt.x > 0 and pt.y > 0:
-                        _last_caret_pos = (pt.x + 10, pt.y + 25)
-                        return _last_caret_pos
+                    return True
     except:
         pass
+    return False
+
+def get_caret_position():
+    """Returns last known caret position (updated on every keystroke)"""
     return _last_caret_pos
-
-
-class _POINT(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
-
 
 # =============================================================
 # DATA MANAGER
@@ -241,7 +168,6 @@ class DictIndex:
             else:
                 break
         return results
-
 
 class DataManager:
     __slots__ = ('suggestions', 'user_learning', 'usage_stats', 'dict_index', 
@@ -307,46 +233,34 @@ class DataManager:
     def get_smart_matches(self, prefix, lang='english'):
         if not prefix or len(prefix) < MIN_WORD_LENGTH:
             return []
-        
         prefix_l = prefix.lower()
         seen = set()
         results = []
         
         if lang == 'roman_urdu':
-            # Fast prefix lookup
             first_char = prefix_l[0] if prefix_l else ''
             if first_char in self._ru_prefixes:
                 for w in self._ru_prefixes[first_char]:
                     if w.startswith(prefix_l) and w not in seen:
                         seen.add(w)
                         results.append((w, 200))
-            
-            # Learned words
             for w, cnt in list(self.ru_learning.items())[:30]:
                 if w.startswith(prefix_l) and w not in seen and cnt > 2:
                     seen.add(w)
                     results.append((w, cnt + 100))
-            
-            # Corrections
             for w in self._ru_corrections.keys():
                 if w.startswith(prefix_l) and w not in seen:
                     seen.add(w)
                     results.append((w, 80))
-        
-        else:  # English
-            # Custom words
+        else:
             for w in self.get_all_custom_words():
                 if w.lower().startswith(prefix_l) and w not in seen:
                     seen.add(w)
                     results.append((w, 150))
-            
-            # Learned words
             for w, cnt in list(self.user_learning.items())[:50]:
                 if w.lower().startswith(prefix_l) and w not in seen and cnt > 2:
                     seen.add(w)
                     results.append((w, cnt + 50))
-            
-            # Dictionary
             if self.dict_index:
                 for w in self.dict_index.prefix_search(prefix_l, limit=10):
                     if w not in seen:
@@ -381,7 +295,6 @@ class DataManager:
                 json.dump(data, f, indent=2, ensure_ascii=False)
         except:
             pass
-
 
 # =============================================================
 # SUGGESTION POPUP
@@ -486,7 +399,6 @@ class SuggestionPopup:
             self.top = None
             self.listbox = None
 
-
 # =============================================================
 # SESSION TRACKER
 # =============================================================
@@ -511,7 +423,6 @@ class SessionTracker:
             with open(self.session_file, 'w', encoding='utf-8') as f:
                 json.dump(self.help_data, f, indent=2, ensure_ascii=False)
             atexit.register(self.cleanup)
-            print(f"  Session: {self.session_file}")
         except:
             pass
     
@@ -553,8 +464,6 @@ class SessionTracker:
             if 'Notepad' in window_title: return 'Notepad'
             if 'Word' in window_title: return 'Microsoft Word'
             if 'VS Code' in window_title: return 'VS Code'
-            if 'Discord' in window_title: return 'Discord'
-            if 'Telegram' in window_title: return 'Telegram'
             return window_title[:30] if window_title else 'Unknown'
         except:
             return 'Unknown'
@@ -573,7 +482,6 @@ class SessionTracker:
             except:
                 pass
 
-
 # =============================================================
 # GLOBAL ASSISTANT (Main Class)
 # =============================================================
@@ -582,54 +490,68 @@ class GlobalAssistant:
         self.dm = DataManager()
         self.lang_detector = LanguageDetector()
         self.session = SessionTracker()
-        self.current_app = "Unknown"
         self.keyboard = pynput_keyboard.Controller()
         self.enabled = True
         self.is_inserting = False
         self.last_ctrl_t = 0
         self.typing_buffer = deque(maxlen=60)
+        self.buffer_lock = threading.Lock()
         self.event_queue = queue.Queue()
         self.listener = None
         self.root = tk.Tk()
         self.root.withdraw()
         self.popup = SuggestionPopup(self.root, self._on_suggestion_selected)
         self.current_lang = 'english'
+        
+        # Hotkeys
+        try:
+            keyboard.add_hotkey('ctrl+alt+x', self.toggle_assistant)
+            keyboard.add_hotkey('ctrl+alt+s', self.show_session_summary)
+        except:
+            pass
+    
+    def toggle_assistant(self):
+        self.enabled = not self.enabled
+        print(f"  Assistant {'ON' if self.enabled else 'OFF'}")
+    
+    def show_session_summary(self):
+        print("\n" + "=" * 50)
+        print("  ALPHA SESSION SUMMARY")
+        print("=" * 50)
+        print(self.session.get_summary())
+        print("=" * 50 + "\n")
     
     def _get_current_word(self):
-        text = ''.join(self.typing_buffer)
+        with self.buffer_lock:
+            text = ''.join(self.typing_buffer)
         words = re.findall(r"[a-zA-Z\u0600-\u06FF']+", text)
         return words[-1] if words else ""
     
     def _detect_language(self):
-        text = ''.join(self.typing_buffer)
+        with self.buffer_lock:
+            text = ''.join(self.typing_buffer)
         if len(text.strip()) < 3:
             return 'unknown'
         return self.lang_detector.detect(text)
     
     def _get_suggestions(self, word, lang):
         suggestions = []
-        
         if lang == 'english':
             corrected = self.dm.correct_error(word, 'english')
             if corrected != word:
                 suggestions.append(f"🔧 {corrected}")
-            
             for m in self.dm.get_smart_matches(word, 'english'):
                 if m.lower() != word.lower():
                     suggestions.append(m)
-        
         elif lang == 'roman_urdu':
             corrected = self.dm.correct_error(word, 'roman_urdu')
             if corrected != word:
                 suggestions.append(f"🇵🇰 {corrected}")
-            
             for m in self.dm.get_smart_matches(word, 'roman_urdu'):
                 if m.lower() != word.lower() and m not in suggestions:
                     suggestions.append(m)
-        
         elif lang == 'urdu_script':
             suggestions.append(f"📜 {word}")
-        
         return suggestions[:MAX_SUGGESTIONS]
     
     def _on_suggestion_selected(self, original_word, suggestion):
@@ -637,13 +559,13 @@ class GlobalAssistant:
             if suggestion.startswith(prefix):
                 suggestion = suggestion[len(prefix):]
                 break
-        
-        self._insert_suggestion(original_word, suggestion)
+        self._insert_suggestion(original_word, suggestion, self.current_lang)
     
-    def _insert_suggestion(self, original_word, suggestion, extra_bs=0):
-        self.current_app = self.session.get_active_app()
-        self.session.record_help(self.current_app, original_word, suggestion.strip(), self.current_lang)
-        self.typing_buffer.clear()
+    def _insert_suggestion(self, original_word, suggestion, lang, extra_bs=0):
+        app = self.session.get_active_app()
+        self.session.record_help(app, original_word, suggestion.strip(), lang)
+        with self.buffer_lock:
+            self.typing_buffer.clear()
         self.is_inserting = True
         self.dm.record_usage(suggestion)
         threading.Thread(target=self._do_insert, args=(original_word, suggestion, extra_bs), daemon=True).start()
@@ -651,46 +573,52 @@ class GlobalAssistant:
     def _do_insert(self, original_word, suggestion, extra_bs=0):
         try:
             time.sleep(FOCUS_RETURN_DELAY)
-            
             total_bs = len(original_word) + extra_bs
-            print(f"[INSERT] word='{original_word}' total_bs={total_bs} suggestion='{suggestion}'")
             for _ in range(total_bs):
                 self.keyboard.press(pynput_keyboard.Key.backspace)
                 self.keyboard.release(pynput_keyboard.Key.backspace)
                 time.sleep(BACKSPACE_DELAY)
-            
             self.keyboard.type(suggestion)
-            
         except Exception as e:
             print(f"Insert error: {e}")
         finally:
             self.is_inserting = False
-            self.typing_buffer.clear()
+            with self.buffer_lock:
+                self.typing_buffer.clear()
     
+    # =============================================================
+    # CRITICAL FIX: Enter key suppression - NO FORM SUBMISSION
+    # =============================================================
     def _win32_event_filter(self, msg, data):
-        """Suppress Enter/Tab when popup is active to prevent form submission"""
+        """Suppress Enter/Tab when popup is active - prevents form submission"""
         if self.popup and self.popup.active:
             if data.vkCode in (13, 9, 27, 38, 40):
-                if msg == 256:
-                    if data.vkCode in (13, 9):
+                if msg == 256:  # WM_KEYDOWN
+                    if data.vkCode == 13:   # Enter
                         self.event_queue.put(('confirm',))
-                    elif data.vkCode == 38:
+                    elif data.vkCode == 9:  # Tab
+                        self.event_queue.put(('confirm',))
+                    elif data.vkCode == 38: # Up
                         self.event_queue.put(('up',))
-                    elif data.vkCode == 40:
+                    elif data.vkCode == 40: # Down
                         self.event_queue.put(('down',))
-                    elif data.vkCode == 27:
+                    elif data.vkCode == 27: # Escape
                         self.event_queue.put(('close',))
-                if self.listener is not None:
+                # CRITICAL: Return False to suppress key from reaching OS
+                if self.listener:
                     self.listener.suppress_event()
                 return False
         return True
     
     def on_press(self, key):
-        self.current_app = self.session.get_active_app()
         if self.is_inserting:
             return True
         
+        # Update caret position on EVERY keystroke (critical for web apps)
+        update_caret_position()
+        
         try:
+            # Ctrl+Ctrl trigger
             if key in (pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.ctrl_r):
                 now = time.time()
                 if now - self.last_ctrl_t < DEBOUNCE_TIME:
@@ -699,7 +627,8 @@ class GlobalAssistant:
                 return True
             
             if key in (pynput_keyboard.Key.left, pynput_keyboard.Key.right):
-                self.typing_buffer.clear()
+                with self.buffer_lock:
+                    self.typing_buffer.clear()
                 self.event_queue.put(('close',))
                 return True
             
@@ -707,44 +636,31 @@ class GlobalAssistant:
                 return True
             
             if hasattr(key, 'char') and key.char and ord(key.char) >= 32:
-                # Track caret position on every keystroke
-                try:
-                    info = _GUITHREADINFO()
-                    info.cbSize = ctypes.sizeof(_GUITHREADINFO)
-                    if ctypes.windll.user32.GetGUIThreadInfo(0, ctypes.byref(info)):
-                        if info.hwndCaret:
-                            pt = _POINT(info.rcCaret.left, info.rcCaret.bottom)
-                            ctypes.windll.user32.ClientToScreen(info.hwndCaret, ctypes.byref(pt))
-                            if pt.x > 0 and pt.y > 0:
-                                global _last_caret_pos
-                                _last_caret_pos = (pt.x + 10, pt.y + 25)
-                except:
-                    pass
-                
-                self.typing_buffer.append(key.char)
+                with self.buffer_lock:
+                    self.typing_buffer.append(key.char)
                 self.event_queue.put(('suggest', self._get_current_word()))
             
             elif key == pynput_keyboard.Key.space:
                 word = self._get_current_word()
-                
                 if word and len(word) >= MIN_WORD_LENGTH:
                     lang = self._detect_language()
                     corrected = self.dm.correct_error(word, lang)
-                    
                     if corrected != word:
-                        self.typing_buffer.clear()
+                        with self.buffer_lock:
+                            self.typing_buffer.clear()
                         self.event_queue.put(('close',))
-                        self._insert_suggestion(word, corrected + " ", extra_bs=0)
+                        self._insert_suggestion(word, corrected + " ", lang, extra_bs=0)
                         return True
                     else:
                         self.dm.learn_word(word, lang)
-                
-                self.typing_buffer.clear()
+                with self.buffer_lock:
+                    self.typing_buffer.clear()
                 self.event_queue.put(('close',))
             
             elif key == pynput_keyboard.Key.backspace:
-                if self.typing_buffer:
-                    self.typing_buffer.pop()
+                with self.buffer_lock:
+                    if self.typing_buffer:
+                        self.typing_buffer.pop()
                 self.event_queue.put(('suggest', self._get_current_word()))
             
             elif key == pynput_keyboard.Key.enter:
@@ -752,11 +668,12 @@ class GlobalAssistant:
                 if word:
                     lang = self._detect_language()
                     self.dm.learn_word(word, lang)
-                self.typing_buffer.clear()
+                with self.buffer_lock:
+                    self.typing_buffer.clear()
                 self.event_queue.put(('close',))
         
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Key error: {e}")
         return True
     
     def _poll_queue(self):
@@ -829,8 +746,9 @@ class GlobalAssistant:
     
     def start(self):
         print("=" * 50)
-        print("  ALPHA Typing Assistant v3.3")
+        print("  ALPHA Typing Assistant v3.5 FINAL")
         print("  English + Roman Urdu | Universal Compatibility")
+        print("  Hotkeys: Ctrl+Alt+X (Toggle), Ctrl+Alt+S (Summary)")
         print("=" * 50)
         
         self.show_splash()
@@ -866,7 +784,6 @@ class GlobalAssistant:
             print("=" * 50)
             print("  Goodbye!")
             print("=" * 50)
-
 
 if __name__ == "__main__":
     assistant = GlobalAssistant()
