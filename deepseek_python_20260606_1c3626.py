@@ -570,8 +570,8 @@ class GlobalAssistant:
         try:
             time.sleep(FOCUS_RETURN_DELAY)
             
-            total_bs = len(original_word) + extra_bs + 1
-            print(f"[INSERT] word='{original_word}' len={len(original_word)} extra_bs={extra_bs} total_bs={total_bs} suggestion='{suggestion}'")
+            total_bs = len(original_word) + extra_bs
+            print(f"[INSERT] word='{original_word}' total_bs={total_bs} suggestion='{suggestion}'")
             for _ in range(total_bs):
                 self.keyboard.press(pynput_keyboard.Key.backspace)
                 self.keyboard.release(pynput_keyboard.Key.backspace)
@@ -629,15 +629,13 @@ class GlobalAssistant:
             
             elif key == pynput_keyboard.Key.space:
                 word = self._get_current_word()
-                print(f"[DEBUG] Space pressed, word='{word}'")
                 
                 if word and len(word) >= MIN_WORD_LENGTH:
                     lang = self._detect_language()
                     corrected = self.dm.correct_error(word, lang)
-                    print(f"[DEBUG] lang={lang}, corrected='{corrected}'")
                     
                     if corrected != word:
-                        print(f"[DEBUG] Auto-correcting: {word} -> {corrected}")
+                        self.typing_buffer.clear()
                         self.event_queue.put(('close',))
                         self._insert_suggestion(word, corrected + " ", extra_bs=0)
                         return True
