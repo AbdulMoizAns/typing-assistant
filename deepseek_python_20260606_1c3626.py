@@ -77,7 +77,8 @@ class LanguageDetector:
         'baat', 'log', 'dil', 'pyar', 'dost', 'yaar', 'bhai', 'mujhe',
         'lekin', 'magar', 'agar', 'toh', 'to', 'warna', 'mat', 'bahut',
         'bohat', 'zyada', 'kafi', 'thoda', 'thori', 'thore', 'kal', 'aaj',
-        'daftar', 'ghar', 'school', 'college', 'khana', 'peena', 'sona'
+        'daftar', 'ghar', 'school', 'college', 'khana', 'peena', 'sona',
+        'mei', 'nhe', 'nai', 'nhi', 'kr', 'hyn', 'thy'
     }
     
     def __init__(self):
@@ -99,6 +100,11 @@ class LanguageDetector:
         if any(ch in self.urdu_chars for ch in last_word):
             return 'urdu_script'
         
+        # CHECK COMMON ENGLISH TYPOS FIRST
+        common_typos = {'teh', 'becuase', 'recieve', 'seperate', 'definately', 'adn', 'acn'}
+        if last_word in common_typos:
+            return 'english'
+        
         # Direct matches
         if last_word in self.ENGLISH_COMMON:
             return 'english'
@@ -106,12 +112,24 @@ class LanguageDetector:
             return 'roman_urdu'
         
         # Pattern-based detection
-        if re.search(r'(th|ng|ck|tion|ing|ment)$', last_word):
-            return 'english'
-        if re.search(r'h$', last_word) or re.search(r'(bh|ch|dh|kh|ph|sh|th|zh)', last_word):
-            return 'roman_urdu'
+        eng_score = 0
+        ru_score = 0
         
-        return 'english'
+        if re.search(r'(th|ng|ck|tion|ing|ment|tion|sion)$', last_word):
+            eng_score += 2
+        
+        if last_word.endswith('h') and len(last_word) > 2:
+            ru_score += 2
+        
+        vowel_count = sum(1 for ch in last_word if ch in 'aeiou')
+        vowel_ratio = vowel_count / max(len(last_word), 1)
+        
+        if vowel_ratio > 0.3:
+            eng_score += 1
+        else:
+            ru_score += 1
+        
+        return 'english' if eng_score >= ru_score else 'roman_urdu'
 
 
 # =============================================================
@@ -247,6 +265,15 @@ class DataManager:
         raw_errors = self._load_json(ERRORS_FILE, {})
         self.errors = {k.strip().lower(): v.strip() for k, v in raw_errors.items() if k.strip()}
         
+        common_typos = {
+            'teh': 'the', 'reciver': 'receiver', 'becuase': 'because',
+            'recieve': 'receive', 'seperate': 'separate', 'definately': 'definitely',
+            'adn': 'and', 'acn': 'can', 'taht': 'that'
+        }
+        for typo, correct in common_typos.items():
+            if typo not in self.errors:
+                self.errors[typo] = correct
+        
         self.ru_learning = self._load_json(os.path.join(BASE_DIR, "ru_learning.json"), {})
         self._ru_corrections = ROMAN_URDU_CORRECTIONS
         self._ru_prefixes = ROMAN_URDU_PREFIXES
@@ -279,8 +306,6 @@ class DataManager:
             if w in self._ru_corrections:
                 return self._ru_corrections[w]
             if w in self.ru_learning and self.ru_learning[w] > 2:
-                return w
-            if w in self.user_learning and self.user_learning[w] > 3:
                 return w
             return word
         else:
@@ -605,16 +630,16 @@ class GlobalAssistant:
             elif key == pynput_keyboard.Key.space:
                 word = self._get_current_word()
                 print(f"[DEBUG] Space pressed, word='{word}'")
-                if word:
+                
+                if word and len(word) >= MIN_WORD_LENGTH:
                     lang = self._detect_language()
                     corrected = self.dm.correct_error(word, lang)
                     print(f"[DEBUG] lang={lang}, corrected='{corrected}'")
                     
                     if corrected != word:
                         print(f"[DEBUG] Auto-correcting: {word} -> {corrected}")
-                        self.typing_buffer.clear()
                         self.event_queue.put(('close',))
-                        self._insert_suggestion(word, corrected + " ", extra_bs=1)
+                        self._insert_suggestion(word, corrected + " ", extra_bs=0)
                         return True
                     else:
                         self.dm.learn_word(word, lang)
