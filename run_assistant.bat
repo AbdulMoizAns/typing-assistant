@@ -2,16 +2,12 @@
 title ALPHA - Intelligent Typing Assistant
 cd /d "%~dp0"
 
-:: Check if running as Administrator
+:: --- AUTO-ELEVATE TO ADMIN ---
 >nul 2>&1 fltmc
 if %errorlevel% neq 0 (
-    echo.
-    echo NOT running as Administrator.
-    echo Global hooks may not work in elevated apps (VS Code, CMD, etc.).
-    echo Right-click this file and select "Run as administrator".
-    echo.
-    echo Starting in 3 seconds anyway...
-    timeout /t 3 /nobreak >nul
+    echo Requesting Administrator privileges...
+    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs -WorkingDirectory '%CD%'"
+    exit /b
 )
 
 :: Check if Python is installed
