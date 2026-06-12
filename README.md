@@ -1,82 +1,108 @@
-# Alpha AI Typing Assistant
+# ALPHA — Intelligent Typing Assistant
 
-Reserved by **Moiz Digital Service** — © 2026 All Rights Reserved
+**Version 3.5 FINAL** | © 2026 Moiz Digital Service — All Rights Reserved
 
 ---
 
 ## Overview
 
-Alpha is a Windows global typing assistant that provides **real-time autocomplete suggestions** and **auto-correction** in any application. It works system-wide — just start typing in any app and suggestions appear automatically.
+ALPHA is a **global Windows typing assistant** that provides **real-time auto‑correction**, **smart suggestions**, and **next‑word prediction** in **any application**.  
+Just type anywhere (browser, WhatsApp, VS Code, Notepad, MS Word) – suggestions appear instantly.
 
-## Features
+---
 
-- **Auto-Suggest** — Type anywhere, suggestions appear after 2+ characters
-- **Auto-Correct** — 350+ common typo corrections (`teh` → `the`, `recieve` → `receive`)
-- **Fuzzy Matching** — Even unknown typos get corrected via smart dictionary matching
-- **370k English Dictionary** — Comprehensive word list for accurate suggestions
-- **Custom Phrases** — Add your own shortcuts (greetings, email templates, code snippets)
-- **Arrow Navigation** — Up/Down to navigate, Enter/Tab to select
-- **Mouse Support** — Click any suggestion to insert
-- **Double Ctrl** — Force-focus the suggestion popup
-- **Customizable** — Edit `suggestions.json` and `errors.json` to add your own data
+## ✨ Features
 
-## Quick Start
+### Core
+- **Auto‑Correct** – Fixes common typos instantly (`teh` → `the`, `recieve` → `receive`)
+- **Smart Suggestions** – Prefix‑based, ranked by frequency & recency
+- **Next‑Word Prediction** – Learns word pairs & trigrams (`how` → `are` → `you`)
+- **Context Awareness** – Previous word influences suggestions
+- **370K English Dictionary** – Fast bisect search
 
-1. **Double-click** `run_assistant.bat`  
-   *(Auto-installs dependencies on first run)*
+### Language Support
+- **English** – Full dictionary + error correction
+- **Roman Urdu** – Automatic detection + common corrections (`mei` → `mein`)
+- **Urdu Script** – Basic detection fallback
 
-2. Start typing in any app (Notepad, browser, chat, etc.)
-
-3. Suggestions appear automatically — press **↑/↓** to navigate, **Enter** to select
-
-## Controls
-
+### Navigation & Controls
 | Key | Action |
 |---|---|
-| Type 2+ characters | Auto-show suggestions |
-| ↑ / ↓ | Navigate suggestions |
-| Enter / Tab | Select suggestion |
-| Esc | Close popup |
-| Double Ctrl | Force popup + keyboard focus |
-| Mouse Click | Select suggestion |
+| `↑` / `↓` | Navigate suggestions |
+| `Enter` / `Tab` | Select suggestion |
+| `Esc` | Close popup |
+| `Mouse Click` | Select suggestion |
+| `Double Ctrl` | Force‑show suggestions |
+| `Ctrl+Alt+X` | Toggle assistant ON/OFF |
+| `Ctrl+Alt+S` | Show session summary |
 
-## File Structure
+### Smart Features
+- **Caret Tracking** – Popup follows your cursor via Win32 API (works in almost all apps)
+- **Enter Suppression** – No accidental form submission when popup is active
+- **Language Detector** – Scoring‑based detection (English / Roman Urdu / Urdu script)
+- **Session Tracking** – Logs corrections per app; summary on exit; temp file auto‑deleted
+- **Recency Ranking** – Recently used words rank higher
+- **Usage Frequency** – Frequently used words surface first
+- **Self‑Learning** – Learns from your typing & selections (saved locally)
 
-```
-├── deepseek_python_20260606_1c3626.py   Main application
-├── run_assistant.bat                     Launcher (double-click to run)
-├── suggestions.json                      Custom phrases & shortcuts
-├── errors.json                           350+ typo corrections
-├── dictionary.json                       370k English words
-└── README.md                             This file
-```
+---
 
-## Customization
+## 🚀 Quick Start
 
-### Add your own suggestions
+1. **Double‑click** `run_assistant.bat` (or run `python alpha_assistant.py` as Administrator)
+2. Start typing in any app – suggestions appear after 2+ characters
+3. Use `↑`/`↓` to navigate, `Enter` to select
+
+---
+
+## 📁 File Structure
+
+| File | Description |
+|------|-------------|
+| `alpha_assistant.py` | Main application (v3.5 FINAL) |
+| `run_assistant.bat` | Launcher (auto‑installs dependencies) |
+| `suggestions.json` | Custom phrases & shortcuts |
+| `errors.json` | 500+ polished typo corrections |
+| `dictionary.json` | 370k English words (optional) |
+| `user_learning.json` | Words you’ve typed (auto‑created) |
+| `usage_stats.json` | Usage frequency (auto‑created) |
+| `ru_learning.json` | Roman Urdu learned words (auto‑created) |
+| `word_pairs.json` | Context pairs (auto‑created) |
+| `recency.json` | Recency timestamps (auto‑created) |
+| `sequences.json` | Learned word pairs & trigrams (auto‑created) |
+| `README.md` | This file |
+
+---
+
+## ⚙️ How It Works
+
+### Suggestion Pipeline
+1. **Key press** → captured by global `pynput` hook  
+2. **Language detection** → scoring based on vowel ratio, patterns, common words  
+3. **Error correction** → checks `errors.json` + Roman Urdu corrections  
+4. **Sequence prediction** → looks up learned word pairs/trigrams (`sequences.json`)  
+5. **Enhanced ranking** → weighted scores (exact match, context, recency, frequency, dictionary)  
+6. **Popup** → dark themed Tkinter window shown at cursor position
+
+### Ranking Weights (simplified)
+| Factor | Approx. Weight | Source |
+|--------|---------------|--------|
+| Exact correction | 1000 | `errors.json` |
+| Context match | 800 | `word_pairs.json` |
+| User learning | 500 | `user_learning.json` |
+| Recency | 400 | `recency.json` |
+| Usage frequency | 300 | `usage_stats.json` |
+| Dictionary prefix | 100 | `dictionary.json` |
+| Custom phrases | 60 | `suggestions.json` |
+
+---
+
+## 🛠 Customization
+
+### Add your own suggestions  
 Edit `suggestions.json`:
 ```json
 {
   "greetings": ["Assalam-o-Alaikum", "Hello", "Hi"],
-  "my_shortcuts": ["addr→my full address", "email→my@email.com"]
+  "my_shortcuts": ["addr→123 Main St", "email→my@email.com"]
 }
-```
-
-### Add typo corrections
-Edit `errors.json`:
-```json
-{
-  "teh": "the",
-  "recieve": "receive"
-}
-```
-
-## Requirements
-
-- Windows 10/11
-- Python 3.7+
-- Dependencies (auto-installed): `pyautogui`, `pyperclip`, `pynput`
-
-## License
-
-© 2026 Moiz Digital Service. All Rights Reserved.

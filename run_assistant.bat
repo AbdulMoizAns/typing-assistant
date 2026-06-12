@@ -1,7 +1,16 @@
 @echo off
-title Global Typing Assistant
+title ALPHA Typing Assistant
 cd /d "%~dp0"
 
+:: Check for Administrator privileges
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting administrative privileges...
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+
+:: Check Python availability
 where python >nul 2>nul
 if errorlevel 1 (
     echo [ERROR] Python not found.
@@ -9,19 +18,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-python -c "import pyautogui, pyperclip, pynput" 2>nul
+:: Install dependencies if missing
+python -c "import pynput" 2>nul
 if errorlevel 1 (
     echo Installing dependencies...
-    python -m pip install --quiet pyautogui pyperclip pynput
-    if errorlevel 1 (
-        echo [ERROR] Failed to install.
-        pause
-        exit /b 1
-    )
+    python -m pip install --quiet pynput keyboard
 )
 
 cls
-echo Starting Global Typing Assistant...
+echo Starting ALPHA Typing Assistant...
 echo  - Type anywhere, suggestions appear automatically
 echo  - Close console to stop
 echo.
