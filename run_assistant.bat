@@ -2,47 +2,48 @@
 title ALPHA - Intelligent Typing Assistant
 cd /d "%~dp0"
 
-:: Use the known working Python path
-set PYTHON=C:\Users\Abdul Moiz Ansari\AppData\Local\Programs\Python\Python314\python.exe
-
-:: Verify Python exists at this path
-if not exist "%PYTHON%" (
-    echo [ERROR] Python not found at %PYTHON%
+:: Detect Python
+where python >nul 2>nul
+if %errorlevel% neq 0 (
+    echo [ERROR] Python not found. Install Python and add to PATH.
     pause
     exit /b 1
 )
 
-:: Check and install dependencies
-"%PYTHON%" -c "import pynput, keyboard" 2>nul
-if errorlevel 1 (
-    echo Installing required dependencies (pynput, keyboard)...
-    "%PYTHON%" -m pip install --quiet pynput keyboard
-    if errorlevel 1 (
-        echo [ERROR] Failed to install dependencies.
-        pause
-        exit /b 1
-    )
-    echo Dependencies installed successfully!
+:: Check dependencies
+python -c "import pynput" 2>nul
+if %errorlevel% neq 0 (
+    echo Installing pynput...
+    python -m pip install pynput
+)
+
+python -c "import keyboard" 2>nul
+if %errorlevel% neq 0 (
+    echo Installing keyboard...
+    python -m pip install keyboard
 )
 
 cls
-echo =============================================================
-echo   ALPHA Typing Assistant v3.5 FINAL
-echo =============================================================
+echo ============================================================
+echo   ALPHA Typing Assistant v3.5
+echo   English + Roman Urdu
+echo ============================================================
 echo.
-echo  - Type in NOTEPAD or CHROME, not this window.
-echo  - Close this console window to stop.
-echo =============================================================
+echo   HOW TO USE:
+echo   1. This window stays open (control panel)
+echo   2. Switch to Notepad, Chrome, WhatsApp, etc.
+echo   3. Start typing - suggestions appear automatically
+echo.
+echo   HOTKEYS:
+echo   Ctrl+Alt+X  = Toggle ON/OFF
+echo   Ctrl+Alt+S  = Show session summary
+echo.
+echo   To STOP: Close this console window.
+echo ============================================================
 echo.
 
-"%PYTHON%" "alpha_assistant.py"
+python alpha_assistant.py
 
-if errorlevel 1 (
-    echo.
-    echo [Script exited with error. Check traceback above.]
-    pause
-) else (
-    echo.
-    echo Assistant stopped. Press any key to exit.
-    pause >nul
-)
+echo.
+echo [Assistant stopped]
+pause
