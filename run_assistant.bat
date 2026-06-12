@@ -6,11 +6,11 @@ cd /d "%~dp0"
 >nul 2>&1 fltmc
 if %errorlevel% neq 0 (
     echo.
-    echo  NOT running as Administrator.
-    echo  Global hooks may not work in elevated apps (VS Code, CMD, etc.).
-    echo  Right-click this file and select "Run as administrator" for full compatibility.
+    echo NOT running as Administrator.
+    echo Global hooks may not work in elevated apps (VS Code, CMD, etc.).
+    echo Right-click this file and select "Run as administrator".
     echo.
-    echo  Starting in 3 seconds...
+    echo Starting in 3 seconds anyway...
     timeout /t 3 /nobreak >nul
 )
 
@@ -40,11 +40,11 @@ echo =============================================================
 echo   ALPHA Typing Assistant v3.5 FINAL
 echo =============================================================
 echo.
->nul 2>&1 fltmc && echo  Status: Running as Administrator || echo  Status: Standard User
-echo  Hotkeys: Ctrl+Alt+X (Toggle), Ctrl+Alt+S (Summary)
+>nul 2>&1 fltmc && echo Status: Running as Administrator || echo Status: Standard User
+echo Hotkeys: Ctrl+Alt+X (Toggle), Ctrl+Alt+S (Summary)
 echo.
-echo  - Type anywhere, suggestions appear automatically.
-echo  - Close this console window to stop.
+echo - Type anywhere, suggestions appear automatically.
+echo - Close this console window to stop.
 echo =============================================================
 echo.
 
