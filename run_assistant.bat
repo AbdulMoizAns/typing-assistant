@@ -1,15 +1,13 @@
 @echo off
 title ALPHA - Intelligent Typing Assistant
+cd /d "%~dp0"
 
 :: Auto-elevate to Administrator for global hooks
-net session >nul 2>&1
-if %errorLevel% neq 0 (
+>nul 2>&1 fltmc || (
     echo Requesting Administrator privileges for global hooks...
-    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs -WorkingDirectory '%CD%'"
     exit /b
 )
-
-cd /d "%~dp0"
 
 :: Check if Python is installed
 where python >nul 2>nul
