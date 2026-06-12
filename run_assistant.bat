@@ -2,27 +2,21 @@
 title ALPHA - Intelligent Typing Assistant
 cd /d "%~dp0"
 
-:: --- AUTO-ELEVATE TO ADMIN ---
->nul 2>&1 fltmc
-if %errorlevel% neq 0 (
-    echo Requesting Administrator privileges...
-    powershell -Command "Start-Process -FilePath '%~f0' -Verb RunAs -WorkingDirectory '%CD%'"
-    exit /b
-)
+:: Use the known working Python path
+set PYTHON=C:\Users\Abdul Moiz Ansari\AppData\Local\Programs\Python\Python314\python.exe
 
-:: Check if Python is installed
-where python >nul 2>nul
-if errorlevel 1 (
-    echo [ERROR] Python not found. Please install Python and add it to PATH.
+:: Verify Python exists at this path
+if not exist "%PYTHON%" (
+    echo [ERROR] Python not found at %PYTHON%
     pause
     exit /b 1
 )
 
-:: Install only needed dependencies
-python -c "import pynput, keyboard" 2>nul
+:: Check and install dependencies
+"%PYTHON%" -c "import pynput, keyboard" 2>nul
 if errorlevel 1 (
     echo Installing required dependencies (pynput, keyboard)...
-    python -m pip install --quiet pynput keyboard
+    "%PYTHON%" -m pip install --quiet pynput keyboard
     if errorlevel 1 (
         echo [ERROR] Failed to install dependencies.
         pause
@@ -36,15 +30,12 @@ echo =============================================================
 echo   ALPHA Typing Assistant v3.5 FINAL
 echo =============================================================
 echo.
->nul 2>&1 fltmc && echo Status: Running as Administrator || echo Status: Standard User
-echo Hotkeys: Ctrl+Alt+X (Toggle), Ctrl+Alt+S (Summary)
-echo.
-echo - Type anywhere, suggestions appear automatically.
-echo - Close this console window to stop.
+echo  - Type in NOTEPAD or CHROME, not this window.
+echo  - Close this console window to stop.
 echo =============================================================
 echo.
 
-python "alpha_assistant.py"
+"%PYTHON%" "alpha_assistant.py"
 
 if errorlevel 1 (
     echo.
