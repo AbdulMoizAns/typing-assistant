@@ -1,36 +1,20 @@
 {
-  "greetings": [
-    "Assalam-o-Alaikum",
-    "Hello",
-    "Hi",
-    "Good morning",
-    "Good evening"
-  ],
-  "closings": [
-    "Thanks",
-    "Regards",
-    "Best regards",
-    "Sincerely",
-    "Take care"
-  ],
-  "code": [
-    "print()",
-    "def main():",
-    "if __name__ == '__main__':",
-    "for i in range():",
-    "import numpy as np"
-  ],
-  "email": [
-    "Dear Sir/Madam",
-    "I hope you are well",
-    "Please find attached",
-    "Looking forward to your reply"
-  ],
-  "urdu_phrases": [
-    "Shukriya",
-    "Mein theek hoon",
-    "Aap kaise hain?",
-    "Allah Hafiz",
-    "Mujhe samajh aa gaya"
-  ]
+    "templates": [
+        "Hello, {name}.",
+        "Thank you for your {noun}.",
+        "Please find the {noun} attached.",
+        "As per our {noun}, we are pleased to inform you.",
+        "I hope this {noun} finds you well.",
+        "Best regards,\n{name}",
+        "Dear {name},\n\nI am writing to {verb}.",
+        "Jumma Mubarak! {name}",
+        "Shukriya for your {noun}.",
+        "Theek hai, {name}?"
+    ],
+    "snippets": {
+        "sig1": "Best regards,\nAbdul Moiz",
+        "sig2": "--\nStay blessed.",
+        "addr": "123, Main Street, Karachi, Pakistan",
+        "regards": "Regards,\nAbdul Moiz Ansari"
+    }
 }

@@ -1,0 +1,1635 @@
+{
+  "pairs": {
+    "how": {
+      "are": 157,
+      "to": 80,
+      "do": 70,
+      "is": 60,
+      "can": 60,
+      "dog": 19
+    },
+    "are": {
+      "you": 137,
+      "we": 60,
+      "their": 50,
+      "your": 40,
+      "the": 17,
+      "in": 245,
+      "there": 70,
+      "they": 60,
+      "dog": 19
+    },
+    "i": {
+      "am": 118,
+      "have": 80,
+      "want": 70,
+      "need": 60,
+      "will": 50,
+      "would": 85,
+      "can": 75
+    },
+    "you": {
+      "are": 90,
+      "have": 70,
+      "want": 60,
+      "can": 50,
+      "se": 12,
+      "able": 89,
+      "know": 60,
+      "dog": 18,
+      "i": 18
+    },
+    "thank": {
+      "you": 100,
+      "god": 80
+    },
+    "thanks": {
+      "for": 90,
+      "you": 70,
+      "to": 80
+    },
+    "please": {
+      "help": 80,
+      "let": 70,
+      "send": 60,
+      "find": 100,
+      "contact": 80,
+      "check": 75
+    },
+    "can": {
+      "you": 90,
+      "i": 80,
+      "we": 60,
+      "be": 70,
+      "neat": 18,
+      "karo": 89
+    },
+    "will": {
+      "be": 80,
+      "have": 70,
+      "do": 60,
+      "call": 70
+    },
+    "would": {
+      "like": 90,
+      "be": 80,
+      "have": 70,
+      "prefer": 70
+    },
+    "assalam": {
+      "o": 100
+    },
+    "o": {
+      "alaikum": 100,
+      "aik": 8
+    },
+    "alaikum": {
+      "assalam": 80
+    },
+    "shukriya": {
+      "bohat": 90,
+      "bhai": 120,
+      "aapka": 110,
+      "dost": 90
+    },
+    "mein": {
+      "thik": 80,
+      "ja": 70,
+      "karta": 60,
+      "theek": 140,
+      "bhi": 100,
+      "apne": 90,
+      "aaj": 80
+    },
+    "thik": {
+      "hoon": 100,
+      "hai": 130
+    },
+    "karta": {
+      "hoon": 90
+    },
+    "what": {
+      "is": 80,
+      "are": 70,
+      "do": 60,
+      "about": 70
+    },
+    "where": {
+      "is": 80,
+      "are": 70,
+      "do": 50,
+      "can": 70
+    },
+    "when": {
+      "is": 80,
+      "do": 60,
+      "will": 50,
+      "can": 80,
+      "you": 70
+    },
+    "let": {
+      "me": 90,
+      "us": 80
+    },
+    "going": {
+      "to": 90,
+      "for": 60
+    },
+    "want": {
+      "to": 90,
+      "a": 50,
+      "the": 40
+    },
+    "need": {
+      "to": 90,
+      "a": 50,
+      "the": 40
+    },
+    "have": {
+      "to": 70,
+      "a": 68,
+      "the": 50,
+      "animation": 45,
+      "been": 100,
+      "done": 70
+    },
+    "this": {
+      "is": 80,
+      "will": 50,
+      "has": 40,
+      "was": 70
+    },
+    "that": {
+      "is": 80,
+      "was": 70,
+      "will": 60,
+      "would": 70
+    },
+    "there": {
+      "is": 90,
+      "are": 80,
+      "was": 50,
+      "profitok": 16,
+      "isas": 101
+    },
+    "here": {
+      "is": 90,
+      "are": 70
+    },
+    "well": {
+      "done": 80,
+      "said": 60
+    },
+    "very": {
+      "good": 80,
+      "much": 70,
+      "well": 60,
+      "the": 4,
+      "use": 10,
+      "happy": 80
+    },
+    "profitok": {
+      "there": 117
+    },
+    "isas": {
+      "profitok": 15,
+      "ka": 86
+    },
+    "ka": {
+      "profitok": 15,
+      "poup": 71,
+      "the": 17,
+      "rakho": 2,
+      "aro": 10,
+      "icon": 54,
+      "sy": 12
+    },
+    "poup": {
+      "profitok": 14,
+      "show": 57
+    },
+    "show": {
+      "profitok": 14,
+      "nahi": 42
+    },
+    "nahi": {
+      "profitok": 13,
+      "ho": 28
+    },
+    "ho": {
+      "profitok": 13,
+      "raha": 14,
+      "rediction": 3
+    },
+    "raha": {
+      "se": 13,
+      "as": 16
+    },
+    "se": {
+      "you": 94
+    },
+    "able": {
+      "se": 11,
+      "unidetified": 86
+    },
+    "unidetified": {
+      "se": 11,
+      "shop": 11,
+      "shopcreate": 72
+    },
+    "shop": {
+      "se": 10
+    },
+    "shopcreate": {
+      "se": 9,
+      "a": 86
+    },
+    "a": {
+      "beatufle": 95
+    },
+    "beatufle": {
+      "se": 9,
+      "wish": 86
+    },
+    "wish": {
+      "se": 9,
+      "card": 91
+    },
+    "card": {
+      "se": 8,
+      "in": 89
+    },
+    "in": {
+      "you": 8,
+      "html": 85,
+      "fied": 8,
+      "which": 62,
+      "the": 265,
+      "order": 110,
+      "this": 80,
+      "of": 24
+    },
+    "html": {
+      "able": 8,
+      "css": 81
+    },
+    "css": {
+      "e": 8,
+      "js": 78
+    },
+    "e": {
+      "unidetified": 8
+    },
+    "js": {
+      "nidetified": 8,
+      "in": 69
+    },
+    "nidetified": {
+      "shopcreate": 8
+    },
+    "fied": {
+      "shopcreate": 8
+    },
+    "which": {
+      "shopcreate": 8,
+      "have": 53
+    },
+    "animation": {
+      "tufle": 8,
+      "first": 36
+    },
+    "tufle": {
+      "wish": 8
+    },
+    "first": {
+      "wish": 7,
+      "enter": 28
+    },
+    "enter": {
+      "card": 6,
+      "name": 21
+    },
+    "name": {
+      "in": 7,
+      "and": 15,
+      "birth": 3
+    },
+    "and": {
+      "html": 4,
+      "her": 10,
+      "neat": 19,
+      "can": 107
+    },
+    "her": {
+      "css": 3,
+      "name": 6
+    },
+    "birth": {
+      "h": 1,
+      "beatful": 1
+    },
+    "h": {
+      "have": 1
+    },
+    "aik": {
+      "the": 7
+    },
+    "the": {
+      "extra": 28,
+      "are": 260,
+      "the": 16,
+      "sky": 115,
+      "of": 47,
+      "kind": 47,
+      "in": 22,
+      "own": 21
+    },
+    "extra": {
+      "the": 6,
+      "or": 21,
+      "neat": 17,
+      "file": 34
+    },
+    "or": {
+      "the": 5,
+      "very": 15
+    },
+    "use": {
+      "the": 3,
+      "less": 6,
+      "as": 13,
+      "karo": 13
+    },
+    "less": {
+      "the": 2,
+      "word": 3
+    },
+    "word": {
+      "the": 1,
+      "mean": 1
+    },
+    "sky": {
+      "the": 17,
+      "yara": 99
+    },
+    "yara": {
+      "the": 18,
+      "ka": 18,
+      "kal": 62
+    },
+    "kal": {
+      "the": 16,
+      "mera": 45
+    },
+    "mera": {
+      "the": 15,
+      "sar": 29
+    },
+    "sar": {
+      "the": 14,
+      "ma": 14
+    },
+    "ma": {
+      "dard": 13,
+      "bhoot": 6,
+      "next": 15,
+      "aro": 8,
+      "aur": 35,
+      "banao": 14,
+      "as": 27
+    },
+    "dard": {
+      "tha": 13
+    },
+    "tha": {
+      "bhoot": 12
+    },
+    "bhoot": {
+      "khoob": 72
+    },
+    "khoob": {
+      "bhoot": 11,
+      "lakin": 60
+    },
+    "lakin": {
+      "bhoot": 10,
+      "as": 10,
+      "ab": 39
+    },
+    "as": {
+      "bhoot": 16,
+      "ma": 23,
+      "rakho": 1,
+      "well": 120,
+      "per": 110,
+      "soon": 100,
+      "ko": 150,
+      "as": 14,
+      "banao": 28,
+      "ka": 13,
+      "sy": 8
+    },
+    "ab": {
+      "bhoot": 8,
+      "as": 30
+    },
+    "next": {
+      "bhoot": 5,
+      "kia": 9
+    },
+    "kia": {
+      "bhoot": 4,
+      "ho": 4
+    },
+    "rediction": {
+      "ka": 3
+    },
+    "rakho": {
+      "as": 3
+    },
+    "could": {
+      "you": 120,
+      "be": 80,
+      "have": 70
+    },
+    "good": {
+      "morning": 120,
+      "afternoon": 100,
+      "evening": 95,
+      "night": 90,
+      "job": 80,
+      "luck": 75
+    },
+    "take": {
+      "care": 130,
+      "it": 90,
+      "time": 80
+    },
+    "see": {
+      "you": 130,
+      "the": 80,
+      "it": 70
+    },
+    "nice": {
+      "to": 130
+    },
+    "looking": {
+      "forward": 140
+    },
+    "who": {
+      "is": 120,
+      "are": 90,
+      "can": 80
+    },
+    "aap": {
+      "kaise": 140,
+      "kahan": 110,
+      "kya": 100,
+      "ko": 90,
+      "ka": 85,
+      "batao": 80
+    },
+    "kaise": {
+      "ho": 140,
+      "hain": 130
+    },
+    "theek": {
+      "hoon": 140,
+      "hai": 130,
+      "hoga": 90
+    },
+    "bohat": {
+      "shukriya": 140,
+      "achha": 120,
+      "khoob": 110,
+      "zyada": 100
+    },
+    "kya": {
+      "hal": 140,
+      "haal": 140,
+      "hai": 130,
+      "hua": 110,
+      "baat": 100,
+      "aap": 90
+    },
+    "hal": {
+      "hai": 140,
+      "hain": 130
+    },
+    "haal": {
+      "hai": 140,
+      "hain": 130
+    },
+    "apna": {
+      "khayal": 140,
+      "kaam": 110,
+      "naam": 90
+    },
+    "allah": {
+      "hafiz": 140,
+      "ka": 100
+    },
+    "jumma": {
+      "mubarak": 150
+    },
+    "eid": {
+      "mubarak": 150
+    },
+    "koi": {
+      "baat": 140,
+      "masla": 120,
+      "nahi": 110,
+      "sy": 19,
+      "connetion": 90,
+      "as": 45
+    },
+    "hum": {
+      "sab": 130,
+      "bhi": 100
+    },
+    "yeh": {
+      "kaam": 120,
+      "baat": 110,
+      "kya": 100
+    },
+    "karna": {
+      "hai": 130,
+      "hoga": 110,
+      "chahiye": 100
+    },
+    "zaroor": {
+      "karna": 120,
+      "aana": 110,
+      "batana": 100
+    },
+    "walaikum": {
+      "assalam": 150
+    },
+    "of": {
+      "the": 119
+    },
+    "kind": {
+      "of": 23,
+      "is": 23
+    },
+    "is": {
+      "in": 23
+    },
+    "own": {
+      "fox": 21
+    },
+    "fox": {
+      "dog": 20
+    },
+    "dog": {
+      "how": 76
+    },
+    "am": {
+      "ya": 18
+    },
+    "ya": {
+      "rha": 18,
+      "raha": 17
+    },
+    "rha": {
+      "ya": 17
+    },
+    "ko": {
+      "as": 85,
+      "use": 27,
+      "aro": 12,
+      "app": 77,
+      "ok": 16,
+      "sy": 7,
+      "change": 28,
+      "connetion": 3,
+      "track": 6
+    },
+    "karo": {
+      "aro": 12,
+      "neat": 18,
+      "mean": 70
+    },
+    "aro": {
+      "logo": 103
+    },
+    "logo": {
+      "aro": 12,
+      "ko": 90
+    },
+    "app": {
+      "aro": 11,
+      "ka": 65
+    },
+    "icon": {
+      "aro": 9,
+      "ma": 44
+    },
+    "aur": {
+      "aro": 7,
+      "kitna": 27
+    },
+    "kitna": {
+      "aro": 6,
+      "timea": 6,
+      "time": 14
+    },
+    "timea": {
+      "aro": 5
+    },
+    "time": {
+      "aro": 4,
+      "laga": 9
+    },
+    "laga": {
+      "aro": 3,
+      "ga": 5
+    },
+    "ga": {
+      "aro": 2,
+      "asma": 2
+    },
+    "asma": {
+      "s": 1
+    },
+    "s": {
+      "ma": 1
+    },
+    "ok": {
+      "foler": 21,
+      "as": 16
+    },
+    "foler": {
+      "neat": 20
+    },
+    "neat": {
+      "and": 126
+    },
+    "mean": {
+      "neat": 17,
+      "extra": 52,
+      "sy": 9,
+      "koi": 54
+    },
+    "file": {
+      "neat": 16,
+      "ko": 17
+    },
+    "banao": {
+      "jis": 56
+    },
+    "jis": {
+      "banao": 14,
+      "ma": 41
+    },
+    "sy": {
+      "koi": 101
+    },
+    "connetion": {
+      "sy": 11,
+      "na": 82
+    },
+    "na": {
+      "sy": 10,
+      "bana": 74,
+      "on": 1,
+      "kara": 1
+    },
+    "bana": {
+      "sy": 9,
+      "mean": 64
+    },
+    "change": {
+      "sy": 6,
+      "kar": 21
+    },
+    "kar": {
+      "sy": 5,
+      "typing": 15
+    },
+    "typing": {
+      "sy": 4,
+      "ko": 10
+    },
+    "track": {
+      "nnetion": 2,
+      "na": 3
+    },
+    "nnetion": {
+      "na": 2
+    },
+    "on": {
+      "na": 1
+    }
+  },
+  "trigrams": {
+    "profitok_there": {
+      "profitok": 16,
+      "isas": 100
+    },
+    "there_profitok": {
+      "there": 16
+    },
+    "there_isas": {
+      "profitok": 15,
+      "ka": 85
+    },
+    "isas_profitok": {
+      "there": 15
+    },
+    "isas_ka": {
+      "profitok": 15,
+      "poup": 70
+    },
+    "ka_profitok": {
+      "there": 15
+    },
+    "ka_poup": {
+      "profitok": 14,
+      "show": 56
+    },
+    "poup_profitok": {
+      "there": 14
+    },
+    "poup_show": {
+      "profitok": 14,
+      "nahi": 42
+    },
+    "show_profitok": {
+      "there": 14
+    },
+    "show_nahi": {
+      "profitok": 13,
+      "ho": 28
+    },
+    "nahi_profitok": {
+      "there": 13
+    },
+    "nahi_ho": {
+      "profitok": 13,
+      "raha": 14
+    },
+    "ho_profitok": {
+      "there": 13
+    },
+    "ho_raha": {
+      "se": 13
+    },
+    "raha_se": {
+      "you": 13
+    },
+    "se_you": {
+      "se": 12,
+      "able": 81
+    },
+    "you_se": {
+      "you": 12
+    },
+    "you_able": {
+      "se": 11,
+      "unidetified": 77
+    },
+    "able_se": {
+      "you": 11
+    },
+    "able_unidetified": {
+      "se": 11,
+      "shop": 11,
+      "shopcreate": 63
+    },
+    "unidetified_se": {
+      "you": 11
+    },
+    "unidetified_shop": {
+      "se": 10
+    },
+    "shop_se": {
+      "you": 10
+    },
+    "unidetified_shopcreate": {
+      "se": 9,
+      "a": 62
+    },
+    "shopcreate_se": {
+      "you": 9
+    },
+    "shopcreate_a": {
+      "beatufle": 86
+    },
+    "a_beatufle": {
+      "se": 9,
+      "wish": 85
+    },
+    "beatufle_se": {
+      "you": 9
+    },
+    "beatufle_wish": {
+      "se": 9,
+      "card": 76
+    },
+    "wish_se": {
+      "you": 9
+    },
+    "wish_card": {
+      "se": 8,
+      "in": 82
+    },
+    "card_se": {
+      "you": 8
+    },
+    "card_in": {
+      "you": 8,
+      "html": 80
+    },
+    "in_you": {
+      "able": 8
+    },
+    "in_html": {
+      "able": 8,
+      "css": 76
+    },
+    "html_able": {
+      "unidetified": 8
+    },
+    "html_css": {
+      "e": 8,
+      "js": 72
+    },
+    "css_e": {
+      "unidetified": 8
+    },
+    "e_unidetified": {
+      "shopcreate": 8
+    },
+    "css_js": {
+      "nidetified": 8,
+      "in": 69
+    },
+    "js_nidetified": {
+      "shopcreate": 8
+    },
+    "nidetified_shopcreate": {
+      "a": 8
+    },
+    "js_in": {
+      "fied": 8,
+      "which": 60
+    },
+    "in_fied": {
+      "shopcreate": 8
+    },
+    "fied_shopcreate": {
+      "a": 8
+    },
+    "in_which": {
+      "shopcreate": 8,
+      "have": 53
+    },
+    "which_shopcreate": {
+      "a": 8
+    },
+    "which_have": {
+      "a": 8,
+      "animation": 44
+    },
+    "have_a": {
+      "beatufle": 8,
+      "good": 160,
+      "great": 150,
+      "nice": 140,
+      "wonderful": 120
+    },
+    "have_animation": {
+      "tufle": 8,
+      "first": 36
+    },
+    "animation_tufle": {
+      "wish": 8
+    },
+    "tufle_wish": {
+      "card": 8
+    },
+    "animation_first": {
+      "wish": 7,
+      "enter": 28
+    },
+    "first_wish": {
+      "card": 7
+    },
+    "first_enter": {
+      "card": 6,
+      "name": 21
+    },
+    "enter_card": {
+      "in": 6
+    },
+    "enter_name": {
+      "in": 5,
+      "and": 15
+    },
+    "name_in": {
+      "html": 5,
+      "which": 2
+    },
+    "name_and": {
+      "html": 4,
+      "her": 10
+    },
+    "and_html": {
+      "css": 4
+    },
+    "and_her": {
+      "css": 3,
+      "name": 6
+    },
+    "her_css": {
+      "js": 3
+    },
+    "her_name": {
+      "in": 2,
+      "birth": 3
+    },
+    "name_birth": {
+      "h": 1,
+      "beatful": 1
+    },
+    "birth_h": {
+      "have": 1
+    },
+    "h_have": {
+      "animation": 1
+    },
+    "o_aik": {
+      "the": 7
+    },
+    "aik_the": {
+      "extra": 7
+    },
+    "the_extra": {
+      "the": 6,
+      "or": 21
+    },
+    "extra_the": {
+      "extra": 6
+    },
+    "extra_or": {
+      "the": 5,
+      "very": 15
+    },
+    "or_the": {
+      "extra": 5
+    },
+    "or_very": {
+      "the": 4,
+      "use": 10
+    },
+    "very_the": {
+      "extra": 4
+    },
+    "very_use": {
+      "the": 3,
+      "less": 6
+    },
+    "use_the": {
+      "extra": 3
+    },
+    "use_less": {
+      "the": 2,
+      "word": 3
+    },
+    "less_the": {
+      "extra": 2
+    },
+    "less_word": {
+      "the": 1,
+      "mean": 1
+    },
+    "word_the": {
+      "extra": 1
+    },
+    "the_are": {
+      "the": 17,
+      "in": 242
+    },
+    "are_the": {
+      "are": 17
+    },
+    "are_in": {
+      "the": 219,
+      "of": 24
+    },
+    "in_the": {
+      "are": 17,
+      "the": 16,
+      "sky": 115,
+      "of": 23,
+      "kind": 47,
+      "in": 22,
+      "own": 21
+    },
+    "the_the": {
+      "are": 16
+    },
+    "the_sky": {
+      "the": 16,
+      "yara": 98
+    },
+    "sky_the": {
+      "are": 17
+    },
+    "sky_yara": {
+      "the": 18,
+      "ka": 18,
+      "kal": 62
+    },
+    "yara_the": {
+      "are": 18
+    },
+    "yara_ka": {
+      "the": 17
+    },
+    "ka_the": {
+      "are": 17
+    },
+    "yara_kal": {
+      "the": 16,
+      "mera": 45
+    },
+    "kal_the": {
+      "are": 16
+    },
+    "kal_mera": {
+      "the": 15,
+      "sar": 29
+    },
+    "mera_the": {
+      "are": 15
+    },
+    "mera_sar": {
+      "the": 14,
+      "ma": 14
+    },
+    "sar_the": {
+      "are": 14
+    },
+    "sar_ma": {
+      "dard": 13
+    },
+    "ma_dard": {
+      "tha": 13
+    },
+    "dard_tha": {
+      "bhoot": 12
+    },
+    "tha_bhoot": {
+      "khoob": 12
+    },
+    "bhoot_khoob": {
+      "bhoot": 11,
+      "lakin": 60
+    },
+    "khoob_bhoot": {
+      "khoob": 11
+    },
+    "khoob_lakin": {
+      "bhoot": 10,
+      "as": 10,
+      "ab": 39
+    },
+    "lakin_bhoot": {
+      "khoob": 10
+    },
+    "lakin_as": {
+      "bhoot": 9
+    },
+    "as_bhoot": {
+      "khoob": 16
+    },
+    "lakin_ab": {
+      "bhoot": 8,
+      "as": 30
+    },
+    "ab_bhoot": {
+      "khoob": 8
+    },
+    "ab_as": {
+      "bhoot": 7,
+      "ma": 22
+    },
+    "as_ma": {
+      "bhoot": 6,
+      "next": 15
+    },
+    "ma_bhoot": {
+      "khoob": 6
+    },
+    "ma_next": {
+      "bhoot": 5,
+      "kia": 9
+    },
+    "next_bhoot": {
+      "khoob": 5
+    },
+    "next_kia": {
+      "bhoot": 4,
+      "ho": 4
+    },
+    "kia_bhoot": {
+      "khoob": 4
+    },
+    "kia_ho": {
+      "rediction": 3
+    },
+    "ho_rediction": {
+      "ka": 3
+    },
+    "rediction_ka": {
+      "rakho": 2
+    },
+    "ka_rakho": {
+      "as": 2
+    },
+    "rakho_as": {
+      "rakho": 1,
+      "ma": 1
+    },
+    "as_rakho": {
+      "as": 1
+    },
+    "how_are": {
+      "you": 197,
+      "things": 110,
+      "they": 90,
+      "we": 80,
+      "dog": 19
+    },
+    "thank_you": {
+      "so": 160,
+      "very": 150,
+      "much": 140,
+      "for": 130
+    },
+    "please_let": {
+      "me": 160,
+      "us": 130
+    },
+    "let_me": {
+      "know": 160,
+      "see": 120,
+      "check": 110
+    },
+    "would_like": {
+      "to": 160,
+      "a": 110
+    },
+    "looking_forward": {
+      "to": 160
+    },
+    "nice_to": {
+      "meet": 160,
+      "see": 130
+    },
+    "take_care": {
+      "of": 160,
+      "bye": 120
+    },
+    "see_you": {
+      "soon": 160,
+      "tomorrow": 140,
+      "later": 130
+    },
+    "what_is": {
+      "the": 160,
+      "your": 150,
+      "this": 140
+    },
+    "i_am": {
+      "writing": 150,
+      "pleased": 130,
+      "fine": 120,
+      "working": 110,
+      "ya": 17
+    },
+    "as_well": {
+      "as": 160
+    },
+    "in_order": {
+      "to": 160
+    },
+    "aap_kaise": {
+      "ho": 170,
+      "hain": 160
+    },
+    "mein_theek": {
+      "hoon": 170
+    },
+    "mein_thik": {
+      "hoon": 170
+    },
+    "kya_hal": {
+      "hai": 170,
+      "hain": 160
+    },
+    "kya_haal": {
+      "hai": 170,
+      "hain": 160
+    },
+    "apna_khayal": {
+      "rakhna": 170,
+      "rakhein": 160
+    },
+    "allah_hafiz": {
+      "bhai": 160,
+      "dost": 130
+    },
+    "jumma_mubarak": {
+      "ho": 160,
+      "aapko": 150
+    },
+    "eid_mubarak": {
+      "ho": 160,
+      "aapko": 150
+    },
+    "koi_baat": {
+      "nahi": 170
+    },
+    "bohat_bohat": {
+      "shukriya": 170,
+      "mubarak": 160
+    },
+    "theek_hai": {
+      "bhai": 160,
+      "to": 130
+    },
+    "assalam_o": {
+      "alaikum": 180
+    },
+    "of_the": {
+      "of": 24,
+      "are": 94
+    },
+    "the_of": {
+      "the": 47
+    },
+    "in_of": {
+      "the": 24
+    },
+    "the_kind": {
+      "of": 23,
+      "is": 23
+    },
+    "kind_of": {
+      "the": 23
+    },
+    "kind_is": {
+      "in": 22
+    },
+    "is_in": {
+      "the": 23
+    },
+    "the_in": {
+      "the": 22
+    },
+    "the_own": {
+      "fox": 21
+    },
+    "own_fox": {
+      "dog": 20
+    },
+    "fox_dog": {
+      "how": 20
+    },
+    "dog_how": {
+      "dog": 19,
+      "are": 56
+    },
+    "how_dog": {
+      "how": 19
+    },
+    "are_dog": {
+      "how": 19
+    },
+    "are_you": {
+      "dog": 18,
+      "i": 18
+    },
+    "you_dog": {
+      "how": 18
+    },
+    "you_i": {
+      "am": 18
+    },
+    "am_ya": {
+      "rha": 18
+    },
+    "ya_rha": {
+      "ya": 17
+    },
+    "rha_ya": {
+      "raha": 17
+    },
+    "ya_raha": {
+      "as": 16
+    },
+    "raha_as": {
+      "ko": 16
+    },
+    "as_ko": {
+      "as": 85,
+      "use": 27,
+      "sy": 7,
+      "change": 28
+    },
+    "ko_as": {
+      "ko": 70,
+      "as": 14
+    },
+    "as_as": {
+      "ko": 14
+    },
+    "ko_use": {
+      "as": 13,
+      "karo": 13
+    },
+    "use_as": {
+      "ko": 13
+    },
+    "use_karo": {
+      "aro": 12
+    },
+    "karo_aro": {
+      "logo": 12
+    },
+    "aro_logo": {
+      "aro": 12,
+      "ko": 90
+    },
+    "logo_aro": {
+      "logo": 12
+    },
+    "logo_ko": {
+      "aro": 12,
+      "app": 77
+    },
+    "ko_aro": {
+      "logo": 12
+    },
+    "ko_app": {
+      "aro": 11,
+      "ka": 65
+    },
+    "app_aro": {
+      "logo": 11
+    },
+    "app_ka": {
+      "aro": 10,
+      "icon": 54
+    },
+    "ka_aro": {
+      "logo": 10
+    },
+    "ka_icon": {
+      "aro": 9,
+      "ma": 44
+    },
+    "icon_aro": {
+      "logo": 9
+    },
+    "icon_ma": {
+      "aro": 8,
+      "aur": 35
+    },
+    "ma_aro": {
+      "logo": 8
+    },
+    "ma_aur": {
+      "aro": 7,
+      "kitna": 27
+    },
+    "aur_aro": {
+      "logo": 7
+    },
+    "aur_kitna": {
+      "aro": 6,
+      "timea": 6,
+      "time": 14
+    },
+    "kitna_aro": {
+      "logo": 6
+    },
+    "kitna_timea": {
+      "aro": 5
+    },
+    "timea_aro": {
+      "logo": 5
+    },
+    "kitna_time": {
+      "aro": 4,
+      "laga": 9
+    },
+    "time_aro": {
+      "logo": 4
+    },
+    "time_laga": {
+      "aro": 3,
+      "ga": 5
+    },
+    "laga_aro": {
+      "logo": 3
+    },
+    "laga_ga": {
+      "aro": 2,
+      "asma": 2
+    },
+    "ga_aro": {
+      "logo": 2
+    },
+    "ga_asma": {
+      "s": 1
+    },
+    "asma_s": {
+      "ma": 1
+    },
+    "ok_foler": {
+      "neat": 20
+    },
+    "foler_neat": {
+      "and": 20
+    },
+    "neat_and": {
+      "neat": 19,
+      "can": 106
+    },
+    "and_neat": {
+      "and": 19
+    },
+    "and_can": {
+      "neat": 18,
+      "karo": 88
+    },
+    "can_neat": {
+      "and": 18
+    },
+    "can_karo": {
+      "neat": 18,
+      "mean": 70
+    },
+    "karo_neat": {
+      "and": 18
+    },
+    "karo_mean": {
+      "neat": 17,
+      "extra": 52
+    },
+    "mean_neat": {
+      "and": 17
+    },
+    "mean_extra": {
+      "neat": 17,
+      "file": 34
+    },
+    "extra_neat": {
+      "and": 17
+    },
+    "extra_file": {
+      "neat": 16,
+      "ko": 17
+    },
+    "file_neat": {
+      "and": 16
+    },
+    "file_ko": {
+      "ok": 16
+    },
+    "ko_ok": {
+      "as": 16
+    },
+    "ok_as": {
+      "banao": 15
+    },
+    "as_banao": {
+      "jis": 28
+    },
+    "banao_jis": {
+      "banao": 14,
+      "ma": 41
+    },
+    "jis_banao": {
+      "jis": 14
+    },
+    "jis_ma": {
+      "banao": 13,
+      "as": 27
+    },
+    "ma_banao": {
+      "jis": 14
+    },
+    "ma_as": {
+      "banao": 13,
+      "ka": 13
+    },
+    "as_ka": {
+      "sy": 12
+    },
+    "ka_sy": {
+      "koi": 12
+    },
+    "sy_koi": {
+      "sy": 11,
+      "connetion": 89
+    },
+    "koi_sy": {
+      "koi": 19
+    },
+    "koi_connetion": {
+      "sy": 11,
+      "na": 78
+    },
+    "connetion_sy": {
+      "koi": 11
+    },
+    "connetion_na": {
+      "sy": 10,
+      "bana": 71
+    },
+    "na_sy": {
+      "koi": 10
+    },
+    "na_bana": {
+      "sy": 9,
+      "mean": 64
+    },
+    "bana_sy": {
+      "koi": 9
+    },
+    "bana_mean": {
+      "sy": 9,
+      "koi": 54
+    },
+    "mean_sy": {
+      "koi": 9
+    },
+    "mean_koi": {
+      "sy": 8,
+      "as": 45
+    },
+    "koi_as": {
+      "sy": 8,
+      "ko": 36
+    },
+    "as_sy": {
+      "koi": 8
+    },
+    "ko_sy": {
+      "koi": 7
+    },
+    "ko_change": {
+      "sy": 6,
+      "kar": 21
+    },
+    "change_sy": {
+      "koi": 6
+    },
+    "change_kar": {
+      "sy": 5,
+      "typing": 15
+    },
+    "kar_sy": {
+      "koi": 5
+    },
+    "kar_typing": {
+      "sy": 4,
+      "ko": 10
+    },
+    "typing_sy": {
+      "koi": 4
+    },
+    "typing_ko": {
+      "connetion": 3,
+      "track": 6
+    },
+    "ko_connetion": {
+      "na": 3
+    },
+    "ko_track": {
+      "nnetion": 2,
+      "na": 3
+    },
+    "track_nnetion": {
+      "na": 2
+    },
+    "nnetion_na": {
+      "bana": 2
+    },
+    "track_na": {
+      "on": 1,
+      "kara": 1
+    },
+    "na_on": {
+      "na": 1
+    },
+    "on_na": {
+      "bana": 1
+    }
+  }
+}
