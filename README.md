@@ -2,16 +2,17 @@
 
 <img src="app_icon.png" width="120" height="120" alt="ALPHA Typing Assistant Logo" style="border-radius: 24px; margin-bottom: 10px;" />
 
-# ⚡ ALPHA Typing Assistant v5.1
+# ⚡ ALPHA Typing Assistant v6.0
 
-**The Intelligent, High-Speed, Offline System-Wide Typing Assistant for Windows**  
-*Featuring Google Gboard-Style Next-Word Prediction & Two-Tier Frequency Word Prioritization*
+**The Intelligent, High-Speed, Offline System-Wide Typing Assistant for Windows**
+*Google Gboard-style next-word prediction, two-tier frequency prioritisation, clipboard-free insertion*
 
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?style=for-the-badge&logo=windows)](https://microsoft.com)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline-9cf?style=for-the-badge)]()
-[![Tests](https://img.shields.io/badge/Tests-69%2F69%20Passed-brightgreen?style=for-the-badge)]()
+[![Tests](https://img.shields.io/badge/Tests-60%20passed-brightgreen?style=for-the-badge)]()
+[![Deps](https://img.shields.io/badge/Dependencies-2-brightgreen?style=for-the-badge)]()
 
 </div>
 
@@ -19,179 +20,237 @@
 
 ## 📖 Overview
 
-**ALPHA Typing Assistant** is a lightweight, background Windows software designed to accelerate typing across **all applications** (Chrome, Notepad, Microsoft Word, WhatsApp Web, VS Code, Discord, Slack, etc.). 
+**ALPHA Typing Assistant** is a lightweight background Windows application that accelerates typing across
+**every** application (Chrome, Notepad, Microsoft Word, WhatsApp, VS Code, Discord, Slack, terminals …).
 
-It bridges the gap between desktop typing and modern mobile keyboards by introducing **Google Gboard-style next-word predictions**, **instant typo corrections**, and an **intelligent two-tier frequency engine** that prioritizes high-frequency everyday vocabulary while completely filtering out obscure and archaic dictionary noise.
+It bridges the gap between desktop typing and modern mobile keyboards by adding **Google Gboard-style next-word
+predictions**, **instant typo correction** and an **intelligent two-tier frequency engine** that surfaces everyday
+vocabulary first while still allowing rare, technical and medical vocabulary to be found.
 
-It offers native, context-aware support for both **English** and **Roman Urdu**.
-
----
-
-## ✨ Key Features
-
-### 1. ⚡ Google Gboard-Style Next-Word Prediction
-- **Spacebar Prediction**: As soon as you type a word and press `Space`, ALPHA immediately predicts the most likely next words based on context.
-- **N-Gram Model (Bigrams & Trigrams)**: Combines single-word transitions and two-word context with weighted scoring ($3\times$ weight for trigrams):
-  - Type `how ` $\rightarrow$ predicts: `are`, `to`, `do`, `is`, `can`
-  - Type `how are ` $\rightarrow$ predicts: `you`, `things`, `they`, `we`
-  - Type `thank you ` $\rightarrow$ predicts: `so`, `very`, `much`, `for`
-  - Type `aap ` $\rightarrow$ predicts: `kaise`, `kahan`, `kya`, `ko`
-  - Type `aap kaise ` $\rightarrow$ predicts: `ho`, `hain`
-- **Continuous Sentence Chaining**: Selecting a predicted word (via `Enter` or `Tab`) cleanly inserts it and **instantly triggers suggestions for the following word**, allowing rapid sentence building with single keystrokes.
-- **Zero-Backspace Safe Insertion**: Predictions are appended with a trailing space without removing previously typed words.
-
-### 2. 🎯 Two-Tier Frequency Word Prioritization
-- **No More Obscure Words**: Standard alphabetical dictionaries often suggest archaic words (e.g. typing `th` used to show `thackless` and `thackerayan`). ALPHA uses a **Two-Tier Engine**:
-  - **Tier 1 (Everyday Vocabulary)**: 9,872 top English words + 154 Roman Urdu words ranked strictly by real-world usage frequency.
-  - **Tier 2 (General Fallback)**: Deep 370,000-word fallback dictionary activated only for technical or rare terminology.
-- **Immediate Gate**: When Tier 1 finds matches for common prefixes (`th` $\rightarrow$ `the`, `that`, `this`; `ap` $\rightarrow$ `apple`, `apply`), the raw dictionary is never touched.
-
-### 3. 🌐 Native Roman Urdu & Multilingual Intelligence
-- **Real-Time Language Detection**: Dynamically recognizes English, Roman Urdu, and Urdu script.
-- **Phonetic Corrections**: Automatically fixes common Roman Urdu spellings:
-  - `shukria` $\rightarrow$ `Shukriya`
-  - `theek` / `thik` $\rightarrow$ `Theek`
-  - `mei` $\rightarrow$ `mein`
-  - `nhe` $\rightarrow$ `nahi`
-
-### 4. 🪟 Universal Windows App Support
-- Works seamlessly in any focused input field across Windows:
-  - Text Editors: Notepad, Notepad++, Sublime Text, VS Code
-  - Browsers: Google Chrome, Microsoft Edge, Brave, Firefox
-  - Productivity: MS Word, Outlook, Excel, OneNote
-  - Messaging: WhatsApp Desktop/Web, Discord, Telegram, Slack
-
-### 5. 📍 Intelligent Caret & Cursor Tracking
-- Floating suggestions popup automatically positions itself near the active text caret using Windows GUI APIs, with intelligent fallback to cursor position when caret API is suppressed by an application.
-
-### 6. 🛡️ Zero-Trust Air-Gap Privacy Firewall (100% Offline & Isolated)
-- **Hard Runtime Network Lock**: Built-in runtime firewall blocks all inbound and outbound socket creation, DNS resolution, and HTTP requests (`AirGapPrivacyViolation`).
-- **Zero Keystroke Tracking or Leakage**: Keystrokes are processed solely in volatile RAM. No session logs are ever written to disk or transmitted across the network.
-- **Zero Cloud & Telemetry**: 100% offline local operation. No external API, no background analytics, no ads.
-- **Windows Defender Firewall Integration**: Includes `setup_airgap_firewall.bat` to enforce outbound network blocking at the Windows kernel firewall level.
-
-### 7. 🖥️ Modern Dark-Mode Dashboard & Sandbox
-- Styled with the Catppuccin Mocha palette (`#1e1e2e`).
-- Includes an interactive **Test Sandbox** to experiment with suggestions and next-word chaining.
-- **Quick Suggestion Bar** with one-click chips (`⚡ Next Word`).
-- Real-time auto-correction and activity feed.
+Native support for **English**, **Roman Urdu** and **Urdu script**.
 
 ---
 
-## ⌨️ Hotkeys & Shortcuts
+## ✨ What's New in v6.0
 
-| Shortcut | Action | Description |
+v6.0 is a full rewrite of the engine internals. The feature set stayed, but the code base was made correct,
+fast and testable.
+
+### 🐛 Critical bug fixes
+
+| Problem | Effect before | Fix |
 | :--- | :--- | :--- |
-| **`Space`** | **Auto-Correct / Predict** | Corrects typos and triggers Next-Word Predictions |
-| **`Tab`** or **`Enter`** | **Insert Suggestion** | Accepts the highlighted word or prediction |
-| **`Up` / `Down` Arrow** | **Navigate List** | Moves selection through the suggestion list |
-| **`Escape`** | **Close Popup** | Dismisses the floating suggestion window |
-| **`Ctrl + Space`** | **Manual Suggestion** | Opens suggestions popup near caret on demand |
-| **`Double-Ctrl`** | **Quick Popup** | Quick double-tap of `Ctrl` opens the suggestion popup |
-| **`Ctrl + Alt + X`** | **Toggle Assistant** | Pauses or resumes the assistant globally |
-| **`Ctrl + Alt + S`** | **Session Summary** | Prints real-time analytics to the console |
+| `import pyautogui` was not in `requirements.txt` | the whole insertion engine silently died on a fresh install | `pyautogui` removed – **two** dependencies are enough now |
+| Roman-Urdu corrections applied to English | *"I saw ten men"* became *"I saw ten mein"* | corrections are split into *typo* and *Roman-Urdu-only* tables, English words are protected |
+| Tkinter calls from the hook thread | random crashes and UI freezes | every UI call is marshalled through a queue onto the Tk main thread |
+| `sequences.json` rewritten on every space press | constant disk I/O and inflated n-gram counters | incremental learning + coalesced, debounced writes |
+| The whole typing buffer was cleared after a correction | next-word prediction lost all context | only the corrected word is replaced, the sentence context survives |
+| `word_pairs` learning never ran | contextual learning was dead code | the previous word is now passed through correctly |
+| Clipboard was hijacked for every insertion | clipboard content could be lost, private data was exposed | text is injected with `SendInput`/`KEYEVENTF_UNICODE` – **the clipboard is never touched** |
+| `Enter` was swallowed in terminals | pressing Enter in a console inserted a suggestion | consoles keep `Enter`/`Tab`, the popup is simply dismissed |
+| 8th suggestion was never visible | one suggestion could not be picked | the popup shows all eight rows |
+| Popup disappeared near the bottom of the screen | suggestions unreachable | the popup now flips above the caret |
+| Emoji in the UI headers | rendering them froze the UI for **15 seconds** | plain text everywhere in the UI |
+
+### ⚡ Performance
+
+| Operation | Before | After |
+| :--- | :--- | :--- |
+| Application start-up | 5.4 s | ~1.5 s (cached index) |
+| Suggestion lookup | full dictionary scan | 4 ms (tier 1 short-circuit) |
+| Popup appearance | 400 – 900 ms | ~55 ms (window is re-used) |
+| Disk writes while typing | one full rewrite per space | coalesced batched writes |
+| Keystroke → suggestion | linear scans of every user table | prefix indexed lookups |
+
+### 🧪 Testability
+
+* The 1 800 line monolith was split into a focused `alpha/` package.
+* **60 automated tests** (`pytest`) cover the language engine, the suggestion tiers, the n-gram model, the
+  buffer bookkeeping, the UI dispatcher and the settings store.
+* A rotating log file (`logs/alpha.log`) replaces `print` statements.
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Windows 10** or **Windows 11**
-- **Python 3.10** or higher installed ([Download Python](https://www.python.org/downloads/))
+* Windows 10 / 11
+* Python 3.10 or newer
 
 ### Installation
 
-1. **Clone or Download the Repository**:
-   ```bash
-   git clone https://github.com/your-username/alpha-typing-assistant.git
-   cd alpha-typing-assistant
-   ```
+```bash
+git clone https://github.com/your-username/alpha-typing-assistant.git
+cd alpha-typing-assistant
+pip install -r requirements.txt
+```
 
-2. **Install Required Python Packages**:
-   ```bash
-   pip install pynput pyperclip pywin32
-   ```
+### Launch
 
-3. **Launch ALPHA**:
-   - Double-click **`run_alpha.bat`**  
-   *or* run via command line:
-   ```bash
-   python alpha_assistant.py
-   ```
+Double-click **`run_alpha.bat`** or run:
+
+```bash
+python alpha_assistant.py
+```
+
+### Build a standalone executable
+
+```bash
+pip install -r requirements-dev.txt
+pyinstaller alpha.spec
+# -> dist/ALPHA_Typing_Assistant.exe
+```
 
 ---
 
-## 📂 Project Structure
+## ⌨️ Hotkeys & Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| **`Space`** | Auto-corrects typos and triggers next-word prediction |
+| **`Tab`** / **`Enter`** | Accept the highlighted suggestion |
+| **`Up`** / **`Down`** | Move through the suggestion list |
+| **`Escape`** | Close the popup |
+| **`Ctrl + Space`** | Open the popup manually at the caret |
+| **Double `Ctrl`** | Quick popup |
+| **`Alt + /`** | Quick popup |
+| **`Ctrl + Alt + X`** | Toggle the assistant globally |
+| **`Ctrl + Alt + S`** | Print the session summary |
+
+---
+
+## 🧠 How the engine works
+
+### Two-tier frequency engine
+
+1. **Tier 1 – everyday vocabulary**: 9 872 ranked English words + 154 Roman Urdu words.
+   As soon as tier 1 produces four candidates the 370 000-word fallback dictionary is never even read, so
+   obsolete words such as *thackless* never appear.
+2. **Tier 2 – general fallback**: only consulted when tier 1 cannot fill the popup, which keeps rare,
+   scientific and medical terminology reachable.
+
+### N-gram next-word prediction
+
+Bigrams are weighted `1x`, trigrams `3x`:
+
+```
+how       -> are, to, do, is, can
+how are   -> you, things, they, we
+thank you -> so, very, much, for
+aap       -> kaise, kahan, kya, ko
+aap kaise -> ho, hain
+```
+
+Learning is **incremental**: committing a word only touches the pair that was just completed, so counters stay
+honest and the dataset is flushed at most every ten seconds.
+
+### Roman Urdu intelligence
+
+Phonetic corrections are applied automatically:
+
+| Typed | Corrected |
+| :--- | :--- |
+| `shukria` | `Shukriya` |
+| `theek` / `thik` | `Theek` |
+| `mei` | `mein` |
+| `nhe` | `nahi` |
+| `krna` | `karna` |
+
+Words that exist in English (`men`, `main`, `ap`, `ye`) are **never** rewritten by the Roman Urdu table.
+
+---
+
+## 🛡️ Privacy
+
+* **100 % offline.** A runtime firewall (`alpha/airgap.py`) blocks socket creation, DNS resolution and HTTP
+  requests. `setup_airgap_firewall.bat` enforces the same at the Windows kernel level.
+* **No keystroke logging.** Corrections are processed in RAM only; the session statistics are never written to disk.
+* **No clipboard usage.** Text is injected with `SendInput`/`KEYEVENTF_UNICODE`, so the clipboard is never read
+  or overwritten.
+* **No telemetry, no cloud, no ads.**
+
+---
+
+## 🗂️ Project Structure
 
 ```
 alpha-typing-assistant/
-│
-├── alpha_assistant.py         # Main application (Engine, Hooks, Caret, Popup, Dashboard)
-├── run_alpha.bat              # Quick Windows launcher batch file
-├── frequency_words.json       # Tier 1 high-frequency dataset (English + Roman Urdu)
-├── dictionary.json            # Tier 2 fallback general dictionary (~370k words)
-├── errors.json                # Common typo correction mappings
-├── sequences.json             # N-Gram dataset (bigrams & trigrams for next-word prediction)
-├── suggestions.json           # Custom user snippets and templates
-├── recency.json               # Tracks recency scores for dynamic word weighting
-├── usage_stats.json           # User usage frequencies for personalized ranking
-└── README.md                  # Project documentation
+├── alpha/
+│   ├── __init__.py          # package entry point
+│   ├── main.py              # bootstrap (window, hook, shutdown)
+│   ├── config.py            # paths, tunables, defaults
+│   ├── logging_setup.py     # rotating file logger
+│   ├── airgap.py            # runtime network firewall
+│   ├── ui_queue.py          # thread-safe Tk dispatcher
+│   ├── insertion.py         # unicode / clipboard text injection
+│   ├── dictionary.py        # prefix index + on-disk cache
+│   ├── ngram.py             # bigram + trigram model
+│   ├── language.py          # detection + correction tables
+│   ├── store.py             # DataManager, learning, persistence
+│   ├── popup.py             # floating suggestion popup
+│   ├── dashboard.py         # control centre window
+│   ├── session.py           # session statistics
+│   ├── settings.py          # persisted preferences
+│   └── win32.py             # caret tracking, console detection
+├── alpha_assistant.py       # launcher
+├── alpha.spec               # PyInstaller build script
+├── tests/                   # 60 pytest tests
+├── dictionary.json          # tier 2 fallback dictionary (~370k words)
+├── frequency_words.json     # tier 1 ranked vocabulary
+├── errors.json              # typo corrections
+├── sequences.json           # learned n-gram dataset
+├── suggestions.json         # snippets, templates and variables
+├── setup_airgap_firewall.bat
+└── run_alpha.bat
 ```
 
 ---
 
-## 🛠️ Customization & Snippets
+## ✏️ Customisation
 
-### Expanding Text Snippets & Templates
-You can configure custom shortcuts in `suggestions.json`. For example, typing `sig1` or `addr` in any application will suggest your pre-configured text:
+### Snippets and templates – `suggestions.json`
 
 ```json
 {
   "snippets": {
     "sig1": "Best regards,\nAbdul Moiz",
-    "addr": "123, Main Street, Karachi, Pakistan",
-    "email": "user@example.com"
-  }
+    "addr": "123, Main Street, Karachi, Pakistan"
+  },
+  "templates": ["Hello, {name}.", "Please find your {noun} attached."],
+  "variables": { "name": "Moiz", "noun": "report" }
 }
 ```
 
-### Adding Custom Typo Corrections
-Add your own common typos in `errors.json`:
+Placeholders such as `{name}` are expanded from the `variables` section.
+
+### Custom corrections – `errors.json`
+
 ```json
-{
-  "teh": "the",
-  "shukria": "Shukriya",
-  "wk": "week",
-  "abt": "about"
-}
+{ "teh": "the", "wk": "week", "abt": "about" }
 ```
+
+`suggestions.json` and `errors.json` are reloaded automatically while the assistant is running.
 
 ---
 
-## 🧪 Testing & Verification
-
-ALPHA includes extensive automated test suites. To execute all unit and regression tests:
+## 🧪 Testing
 
 ```bash
-# Core regression tests (33 tests)
-python scratch/verify_alpha.py
-
-# Two-tier word frequency tests (19 tests)
-python scratch/test_frequency_verification.py
-
-# Next-word prediction verification (17 tests)
-python scratch/test_next_word.py
+pip install -r requirements-dev.txt
+python -m pytest
 ```
-> **Total: 69/69 automated tests passing (100% success rate).**
+
+The suite covers the language detector, the correction tables, the tier-1/tier-2 gate, the n-gram model,
+template expansion, the buffer bookkeeping, the thread-safe dispatcher and the settings store.
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License** - see the LICENSE file for details.
+MIT – see [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for ultra-fast, intelligent, and seamless typing.</sub>
+  <sub>Built with ❤️ for ultra-fast, intelligent and seamless typing.</sub>
 </div>

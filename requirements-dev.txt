@@ -1,0 +1,5 @@
+# ALPHA Typing Assistant - development dependencies
+-r requirements.txt
+
+pytest>=7.4
+pyinstaller>=6.0

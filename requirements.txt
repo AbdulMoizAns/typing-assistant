@@ -1,4 +1,7 @@
-# ALPHA Typing Assistant - Dependencies
+# ALPHA Typing Assistant - runtime dependencies
+#
+# Only two packages are required.  Everything else (caret tracking, global
+# hooks, text injection) is implemented on top of the Windows API through
+# ctypes, so no extra binaries have to be installed.
 pynput>=1.7.6
 pyperclip>=1.8.2
-pywin32>=306

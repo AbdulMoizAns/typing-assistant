@@ -24,4 +24,16 @@ $RECYCLE.BIN/
 
 # Logs
 *.log
-scratch/
+logs/
+
+# Test / tooling caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated at runtime (user data, not source)
+settings.json
+user_learning.json
+ru_learning.json
+word_pairs.json
+dictionary.json.idx
